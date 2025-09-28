@@ -1,0 +1,9 @@
+# Placeholder for category images
+
+Please add the following images to this directory:
+
+1. candles.jpg - Image for scented candles category
+2. body-fragrance.jpg - Image for body fragrance category  
+3. gift-combo.jpg - Image for gift combo category
+
+These images should be 400x300px or similar aspect ratio for best display.

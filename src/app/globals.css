@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --pink-50: #fdf2f8;
+  --pink-500: #ec4899;
+  --pink-600: #db2777;
+  --pink-700: #be185d;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Custom styles for login page */
+.login-container {
+  background: linear-gradient(135deg, #fdf2f8 0%, #f3e8ff 100%);
+  min-height: 100vh;
+}
+
+.login-form {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.pink-gradient {
+  background: linear-gradient(135deg, #ec4899, #db2777);
+}
+
+.pink-gradient:hover {
+  background: linear-gradient(135deg, #db2777, #be185d);
+}
+
+/* Custom styles for home page */
+.hero-banner {
+  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Carousel indicators */
+.carousel-indicator {
+  transition: all 0.3s ease;
+}
+
+.carousel-indicator.active {
+  background-color: white;
+}
+
+.carousel-indicator:not(.active) {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Floating elements */
+.floating-element {
+  transition: all 0.3s ease;
+}
+
+.floating-element:hover {
+  transform: translateY(-2px);
+}
+
+/* Product card hover effects */
+.product-card {
+  transition: all 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ec4899;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #db2777;
+}

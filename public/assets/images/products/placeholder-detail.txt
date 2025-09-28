@@ -1,0 +1,14 @@
+# Placeholder for detailed product images
+
+Please add the following images to this directory:
+
+For White Tea & Sage candle:
+1. white-tea-sage-1.jpg - Main product image
+2. white-tea-sage-2.jpg - Alternative angle
+3. white-tea-sage-3.jpg - Close-up detail
+
+For Stress Relief candle:
+1. stress-relief-1.jpg - Main product image
+2. stress-relief-2.jpg - Alternative angle
+
+These images should be 600x600px or similar aspect ratio for best display.

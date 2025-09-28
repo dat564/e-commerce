@@ -1,0 +1,11 @@
+# Placeholder for product images
+
+Please add the following images to this directory:
+
+1. white-tea-sage.jpg - White Tea & Sage candle
+2. stress-relief.jpg - Stress Relief aromatherapy candle
+3. peppermint-bark.jpg - Peppermint Bark candle
+4. white-gardenia.jpg - White Gardenia candle
+5. fall-apple-cider.jpg - Fall Apple Cider candle
+
+These images should be 400x400px or similar aspect ratio for best display.
