@@ -1,15 +1,32 @@
 import { NextResponse } from "next/server";
-import connectDB from "@/lib/mongodb";
+import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
-import authMiddleware from "@/middleware/auth";
+import jwt from "jsonwebtoken";
 
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+
+// GET - Get user profile
 export async function GET(request) {
   try {
+    const token = request.headers.get("authorization")?.replace("Bearer ", "");
+
+    if (!token) {
+      return NextResponse.json(
+        { success: false, message: "Token không hợp lệ" },
+        { status: 401 }
+      );
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
     await connectDB();
 
-    // Middleware sẽ xử lý authentication
-    const user = await authMiddleware(request);
-    if (user instanceof NextResponse) return user;
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: "Không tìm thấy người dùng" },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
@@ -19,9 +36,8 @@ export async function GET(request) {
           name: user.name,
           email: user.email,
           phone: user.phone,
-          address: user.address,
           role: user.role,
-          avatar: user.avatar,
+          createdAt: user.createdAt,
         },
       },
     });
@@ -34,35 +50,48 @@ export async function GET(request) {
   }
 }
 
+// PUT - Update user profile
 export async function PUT(request) {
   try {
-    const { name, phone, address, avatar } = await request.json();
+    const token = request.headers.get("authorization")?.replace("Bearer ", "");
+
+    if (!token) {
+      return NextResponse.json(
+        { success: false, message: "Token không hợp lệ" },
+        { status: 401 }
+      );
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const { name, phone } = await request.json();
 
     await connectDB();
 
-    // Middleware sẽ xử lý authentication
-    const user = await authMiddleware(request);
-    if (user instanceof NextResponse) return user;
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: "Không tìm thấy người dùng" },
+        { status: 404 }
+      );
+    }
 
-    // Cập nhật thông tin user
-    const updatedUser = await User.findByIdAndUpdate(
-      user._id,
-      { name, phone, address, avatar },
-      { new: true, runValidators: true }
-    );
+    // Update user data
+    if (name !== undefined) user.name = name;
+    if (phone !== undefined) user.phone = phone;
+
+    await user.save();
 
     return NextResponse.json({
       success: true,
       message: "Cập nhật thông tin thành công",
       data: {
         user: {
-          id: updatedUser._id,
-          name: updatedUser.name,
-          email: updatedUser.email,
-          phone: updatedUser.phone,
-          address: updatedUser.address,
-          role: updatedUser.role,
-          avatar: updatedUser.avatar,
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          role: user.role,
+          createdAt: user.createdAt,
         },
       },
     });

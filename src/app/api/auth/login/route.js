@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import connectDB from "@/lib/mongodb";
+import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
 
@@ -24,7 +24,7 @@ export async function POST(request) {
     if (!user) {
       return NextResponse.json(
         { success: false, message: "Email hoặc mật khẩu không đúng" },
-        { status: 401 }
+        { status: 400 }
       );
     }
 
@@ -32,7 +32,7 @@ export async function POST(request) {
     if (!user.isActive) {
       return NextResponse.json(
         { success: false, message: "Tài khoản đã bị vô hiệu hóa" },
-        { status: 401 }
+        { status: 400 }
       );
     }
 
@@ -41,15 +41,22 @@ export async function POST(request) {
     if (!isPasswordValid) {
       return NextResponse.json(
         { success: false, message: "Email hoặc mật khẩu không đúng" },
-        { status: 401 }
+        { status: 400 }
       );
     }
 
-    // Tạo JWT token
-    const token = jwt.sign(
+    // Tạo access token (ngắn hạn - 1 giờ)
+    const accessToken = jwt.sign(
       { userId: user._id, email: user.email },
       JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "1h" }
+    );
+
+    // Tạo refresh token (dài hạn - 30 ngày)
+    const refreshToken = jwt.sign(
+      { userId: user._id, email: user.email },
+      JWT_SECRET,
+      { expiresIn: "30d" }
     );
 
     return NextResponse.json({
@@ -64,7 +71,8 @@ export async function POST(request) {
           address: user.address,
           role: user.role,
         },
-        token,
+        accessToken,
+        refreshToken,
       },
     });
   } catch (error) {

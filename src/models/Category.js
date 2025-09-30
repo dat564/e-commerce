@@ -5,47 +5,42 @@ const categorySchema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, "Tên danh mục là bắt buộc"],
-      unique: true,
       trim: true,
-      maxLength: [50, "Tên danh mục không được vượt quá 50 ký tự"],
-    },
-    slug: {
-      type: String,
       unique: true,
-      lowercase: true,
-      trim: true,
+      maxLength: [100, "Tên danh mục không được vượt quá 100 ký tự"],
     },
     description: {
       type: String,
+      required: [true, "Mô tả danh mục là bắt buộc"],
       trim: true,
-      maxLength: [200, "Mô tả không được vượt quá 200 ký tự"],
+      maxLength: [500, "Mô tả không được vượt quá 500 ký tự"],
     },
     image: {
       type: String,
       default: "",
     },
-    parent: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
-      default: null,
+    status: {
+      type: String,
+      enum: ["active", "inactive"],
+      default: "active",
     },
-    isActive: {
+    productCount: {
+      type: Number,
+      default: 0,
+      min: [0, "Số lượng sản phẩm không được âm"],
+    },
+    slug: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    isFeatured: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     sortOrder: {
       type: Number,
       default: 0,
-    },
-    seoTitle: {
-      type: String,
-      trim: true,
-      maxLength: [60, "SEO title không được vượt quá 60 ký tự"],
-    },
-    seoDescription: {
-      type: String,
-      trim: true,
-      maxLength: [160, "SEO description không được vượt quá 160 ký tự"],
     },
   },
   {
@@ -53,16 +48,12 @@ const categorySchema = new mongoose.Schema(
   }
 );
 
-// Tạo slug từ name
+// Tạo slug tự động từ name
 categorySchema.pre("save", function (next) {
-  if (this.isModified("name") && !this.slug) {
+  if (this.isModified("name")) {
     this.slug = this.name
       .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/đ/g, "d")
-      .replace(/Đ/g, "D")
-      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/[^a-z0-9 -]/g, "")
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-")
       .trim("-");
@@ -72,8 +63,7 @@ categorySchema.pre("save", function (next) {
 
 // Index cho tìm kiếm
 categorySchema.index({ name: "text", description: "text" });
-categorySchema.index({ slug: 1 });
-categorySchema.index({ parent: 1, isActive: 1 });
+categorySchema.index({ status: 1, isFeatured: 1 });
 categorySchema.index({ sortOrder: 1 });
 
 export default mongoose.models.Category ||

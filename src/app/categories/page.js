@@ -1,5 +1,6 @@
 import CategoriesSection from "@/components/categories/CategoriesSection";
 import PageTransition from "@/components/PageTransition";
+import LoadingLink from "@/components/LoadingLink";
 
 export const metadata = {
   title: "Danh mục sản phẩm - M.O.B",
@@ -14,9 +15,13 @@ export default function CategoriesPage() {
         <div className="bg-gray-100 py-3">
           <div className="container mx-auto px-4 max-w-6xl">
             <nav className="text-sm text-gray-600">
-              <span className="hover:text-pink-600 cursor-pointer">
+              <LoadingLink
+                href="/"
+                className="hover:text-pink-600 cursor-pointer"
+                loadingText="Đang chuyển về trang chủ..."
+              >
                 Trang chủ
-              </span>
+              </LoadingLink>
               <span className="mx-2">/</span>
               <span className="text-gray-800">Danh mục sản phẩm</span>
             </nav>

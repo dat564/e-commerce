@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import {
   PhoneOutlined,
   MailOutlined,
@@ -13,7 +14,7 @@ import {
 import Link from "next/link";
 import LoadingLink from "@/components/LoadingLink";
 import { useCart } from "@/contexts/CartContext";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/store";
 
 export default function Header() {
   const { getTotalItems } = useCart();
@@ -21,6 +22,23 @@ export default function Header() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
   const cartItemsCount = getTotalItems();
+  const pathname = usePathname();
+
+  // Helper function to check if a link is active
+  const isActive = (href) => {
+    if (href === "/") {
+      return pathname === "/";
+    }
+    if (href === "/categories") {
+      // Active for both /categories and /categories/[slug]
+      return pathname === "/categories" || pathname.startsWith("/categories/");
+    }
+    if (href === "/products") {
+      // Active for both /products and /products/[id]
+      return pathname === "/products" || pathname.startsWith("/products/");
+    }
+    return pathname.startsWith(href);
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -53,7 +71,7 @@ export default function Header() {
           </div>
           <div className="flex items-center space-x-4">
             {user ? (
-              <div className="relative" ref={userMenuRef}>
+              <div className="relative z-[55]" ref={userMenuRef}>
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className="flex items-center space-x-1 hover:text-pink-600 transition-colors"
@@ -65,7 +83,7 @@ export default function Header() {
 
                 {/* User Dropdown Menu */}
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border z-50">
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border z-[60]">
                     <div className="py-2">
                       <LoadingLink
                         href="/profile"
@@ -83,7 +101,7 @@ export default function Header() {
                       >
                         Đơn hàng của tôi
                       </LoadingLink>
-                      {isAdmin() && (
+                      {isAdmin && (
                         <LoadingLink
                           href="/admin"
                           className="block px-4 py-2 text-sm text-purple-600 hover:bg-purple-50 transition-colors"
@@ -167,39 +185,63 @@ export default function Header() {
             <nav className="hidden md:flex items-center space-x-4 lg:space-x-6">
               <LoadingLink
                 href="/"
-                className="text-gray-700 hover:text-pink-600 transition-colors relative text-sm lg:text-base"
+                className={`transition-colors relative text-sm lg:text-base text-gray-700 hover:text-pink-600 ${
+                  isActive("/") ? "text-pink-600" : ""
+                }`}
                 loadingText="Đang chuyển về trang chủ..."
               >
                 Trang chủ
-                <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-pink-600"></span>
+                {isActive("/") && (
+                  <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-pink-600"></span>
+                )}
               </LoadingLink>
               <LoadingLink
                 href="/categories"
-                className="text-gray-700 hover:text-pink-600 transition-colors text-sm lg:text-base"
-                loadingText="Đang chuyển đến danh mục..."
+                className={`transition-colors relative text-sm lg:text-base text-gray-700 hover:text-pink-600 ${
+                  isActive("/categories") ? "text-pink-600" : ""
+                }`}
+                loadingText="Đang chuyển đến thể loại..."
               >
-                Danh mục
+                Thể loại
+                {isActive("/categories") && (
+                  <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-pink-600"></span>
+                )}
               </LoadingLink>
               <LoadingLink
                 href="/about"
-                className="text-gray-700 hover:text-pink-600 transition-colors text-sm lg:text-base"
+                className={`transition-colors relative text-sm lg:text-base text-gray-700 hover:text-pink-600 ${
+                  isActive("/about") ? "text-pink-600" : ""
+                }`}
                 loadingText="Đang chuyển đến trang giới thiệu..."
               >
                 Về chúng tôi
+                {isActive("/about") && (
+                  <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-pink-600"></span>
+                )}
               </LoadingLink>
               <LoadingLink
                 href="/blog"
-                className="text-gray-700 hover:text-pink-600 transition-colors text-sm lg:text-base"
+                className={`transition-colors relative text-sm lg:text-base text-gray-700 hover:text-pink-600 ${
+                  isActive("/blog") ? "text-pink-600" : ""
+                }`}
                 loadingText="Đang chuyển đến blog..."
               >
                 Blog
+                {isActive("/blog") && (
+                  <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-pink-600"></span>
+                )}
               </LoadingLink>
               <LoadingLink
                 href="/contact"
-                className="text-gray-700 hover:text-pink-600 transition-colors text-sm lg:text-base"
+                className={`transition-colors relative text-sm lg:text-base text-gray-700 hover:text-pink-600 ${
+                  isActive("/contact") ? "text-pink-600" : ""
+                }`}
                 loadingText="Đang chuyển đến trang liên hệ..."
               >
                 Liên hệ
+                {isActive("/contact") && (
+                  <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-pink-600"></span>
+                )}
               </LoadingLink>
 
               {/* Cart Icon */}

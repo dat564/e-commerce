@@ -11,9 +11,10 @@ import {
 } from "@ant-design/icons";
 import Link from "next/link";
 import LoadingLink from "@/components/LoadingLink";
-import { useAuth } from "@/contexts/AuthContext";
-import { authAPI } from "@/utils/api";
+import { useAuth } from "@/store";
+import { authAPI } from "@/api";
 import { getErrorMessage } from "@/utils/errorHandler";
+import { showError, showSuccess } from "@/utils/notification";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -45,11 +46,18 @@ export default function LoginForm() {
       const data = await authAPI.login(formData.email, formData.password);
 
       if (data.success) {
-        // Lưu token vào localStorage
-        localStorage.setItem("token", data.data.token);
+        // Lưu tokens vào localStorage
+        localStorage.setItem("accessToken", data.data.accessToken);
+        localStorage.setItem("refreshToken", data.data.refreshToken);
 
         // Login user với thông tin từ API
-        login(data.data.user);
+        login(data.data.user, data.data.accessToken, data.data.refreshToken);
+
+        // Show success notification
+        showSuccess(
+          "Đăng nhập thành công!",
+          `Chào mừng ${data.data.user.name || data.data.user.email}`
+        );
 
         // Redirect based on user role
         if (data.data.user.role === "admin") {
@@ -58,11 +66,15 @@ export default function LoginForm() {
           router.push("/");
         }
       } else {
-        setError(data.message || "Đăng nhập thất bại");
+        const errorMsg = data.message || "Đăng nhập thất bại";
+        setError(errorMsg);
+        showError("Đăng nhập thất bại", errorMsg);
       }
     } catch (error) {
       console.error("Login error:", error);
-      setError(getErrorMessage(error));
+      const errorMsg = getErrorMessage(error);
+      setError(errorMsg);
+      showError("Lỗi đăng nhập", errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +100,6 @@ export default function LoginForm() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-pink-500 rounded-full mb-4">
             <span className="text-white text-2xl font-bold">🌸</span>
           </div>
-          <h1 className="text-2xl font-bold text-pink-600 mb-2">M.O.B</h1>
           <h2 className="text-lg font-semibold text-pink-600">
             Đăng nhập tài khoản
           </h2>

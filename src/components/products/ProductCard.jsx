@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import LoadingLink from "@/components/LoadingLink";
+import { ProductImage } from "@/components/ui/CloudinaryImage";
 
 export default function ProductCard({ product }) {
   const formatPrice = (price) => {
@@ -13,18 +14,31 @@ export default function ProductCard({ product }) {
 
   return (
     <LoadingLink
-      href={`/products/${product.id}`}
-      className="block bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden group cursor-pointer"
+      href={`/products/${product._id}`}
+      className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden group cursor-pointer h-full flex flex-col"
       loadingText={`Đang xem chi tiết ${product.name}...`}
     >
       {/* Image Container */}
-      <div className="relative h-64 overflow-hidden">
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          className="object-cover group-hover:scale-105 transition-transform duration-300"
-        />
+      <div className="relative h-64 overflow-hidden flex-shrink-0">
+        {product.cloudinaryImage?.url ? (
+          <ProductImage
+            src={product.cloudinaryImage.url}
+            alt={product.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : product.image && product.image.trim() !== "" ? (
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 flex flex-col items-center justify-center">
+            <div className="text-6xl mb-2">🕯️</div>
+            <span className="text-gray-500 text-sm font-medium">M.O.B</span>
+          </div>
+        )}
 
         {/* Features Overlay */}
         {product.features && product.features.length > 0 && (
@@ -46,16 +60,16 @@ export default function ProductCard({ product }) {
       </div>
 
       {/* Content */}
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2 group-hover:text-pink-600 transition-colors">
+      <div className="p-4 flex flex-col flex-grow">
+        <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2 group-hover:text-pink-600 transition-colors min-h-[3.5rem]">
           {product.name}
         </h3>
 
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+        <p className="text-sm text-gray-600 mb-3 line-clamp-2 flex-grow">
           {product.description}
         </p>
 
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center mt-auto">
           <span className="text-2xl font-bold text-pink-600">
             {formatPrice(product.price)}
           </span>

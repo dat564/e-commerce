@@ -9,14 +9,14 @@ import {
   LockOutlined,
   UserOutlined,
   PhoneOutlined,
-  HomeOutlined,
   LoadingOutlined,
 } from "@ant-design/icons";
 import Link from "next/link";
 import LoadingLink from "@/components/LoadingLink";
-import { useAuth } from "@/contexts/AuthContext";
-import { authAPI } from "@/utils/api";
+import { useAuth } from "@/store";
+import { authAPI } from "@/api";
 import { getErrorMessage } from "@/utils/errorHandler";
+import { showError, showSuccess } from "@/utils/notification";
 
 export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -29,7 +29,6 @@ export default function RegisterForm() {
     password: "",
     confirmPassword: "",
     phone: "",
-    address: "",
   });
   const { login } = useAuth();
   const router = useRouter();
@@ -46,23 +45,33 @@ export default function RegisterForm() {
 
   const validateForm = () => {
     if (!formData.name.trim()) {
-      setError("Tên là bắt buộc");
+      const errorMsg = "Tên là bắt buộc";
+      setError(errorMsg);
+      showError("Lỗi đăng ký", errorMsg);
       return false;
     }
     if (!formData.email.trim()) {
-      setError("Email là bắt buộc");
+      const errorMsg = "Email là bắt buộc";
+      setError(errorMsg);
+      showError("Lỗi đăng ký", errorMsg);
       return false;
     }
     if (!formData.password) {
-      setError("Mật khẩu là bắt buộc");
+      const errorMsg = "Mật khẩu là bắt buộc";
+      setError(errorMsg);
+      showError("Lỗi đăng ký", errorMsg);
       return false;
     }
     if (formData.password.length < 6) {
-      setError("Mật khẩu phải có ít nhất 6 ký tự");
+      const errorMsg = "Mật khẩu phải có ít nhất 6 ký tự";
+      setError(errorMsg);
+      showError("Lỗi đăng ký", errorMsg);
       return false;
     }
     if (formData.password !== formData.confirmPassword) {
-      setError("Mật khẩu xác nhận không khớp");
+      const errorMsg = "Mật khẩu xác nhận không khớp";
+      setError(errorMsg);
+      showError("Lỗi đăng ký", errorMsg);
       return false;
     }
     return true;
@@ -87,14 +96,24 @@ export default function RegisterForm() {
         // Login user với thông tin từ API
         login(data.data.user);
 
+        // Show success notification
+        showSuccess(
+          "Đăng ký thành công!",
+          `Chào mừng ${data.data.user.name} đến với M.O.B Love Store`
+        );
+
         // Redirect to home page
         router.push("/");
       } else {
-        setError(data.message || "Đăng ký thất bại");
+        const errorMsg = data.message || "Đăng ký thất bại";
+        setError(errorMsg);
+        showError("Đăng ký thất bại", errorMsg);
       }
     } catch (error) {
       console.error("Register error:", error);
-      setError(getErrorMessage(error));
+      const errorMsg = getErrorMessage(error);
+      setError(errorMsg);
+      showError("Lỗi đăng ký", errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -118,7 +137,6 @@ export default function RegisterForm() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-pink-500 rounded-full mb-4">
             <span className="text-white text-2xl font-bold">🌸</span>
           </div>
-          <h1 className="text-2xl font-bold text-pink-600 mb-2">M.O.B</h1>
           <h2 className="text-lg font-semibold text-pink-600">
             Đăng ký tài khoản mới
           </h2>
@@ -205,31 +223,6 @@ export default function RegisterForm() {
                 disabled={isLoading}
                 className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
                 placeholder="Nhập số điện thoại"
-              />
-            </div>
-          </div>
-
-          {/* Address Input */}
-          <div>
-            <label
-              htmlFor="address"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Địa chỉ
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <HomeOutlined className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                disabled={isLoading}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
-                placeholder="Nhập địa chỉ"
               />
             </div>
           </div>

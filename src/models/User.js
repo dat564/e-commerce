@@ -44,10 +44,43 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    // Cloudinary avatar fields
+    cloudinaryAvatar: {
+      publicId: {
+        type: String,
+        default: "",
+      },
+      url: {
+        type: String,
+        default: "",
+      },
+      width: Number,
+      height: Number,
+      format: String,
+      bytes: Number,
+    },
     isActive: {
       type: Boolean,
       default: true,
     },
+    cart: [
+      {
+        productId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+          min: 1,
+        },
+        addedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

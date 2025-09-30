@@ -3,10 +3,13 @@
 import { useState } from "react";
 import LoadingLink from "@/components/LoadingLink";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/store";
+import { showSuccess, showError } from "@/utils/notification";
 
 export default function ProductInfo({ product }) {
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
+  const { user } = useAuth();
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -22,13 +25,25 @@ export default function ProductInfo({ product }) {
     }
   };
 
-  const handleAddToCart = () => {
-    addToCart(product, quantity);
-    // Show success message or notification
-    alert(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
+  const handleAddToCart = async () => {
+    try {
+      const success = await addToCart(product, quantity);
+      if (success) {
+        showSuccess(
+          "Thêm vào giỏ hàng thành công!",
+          `Đã thêm ${quantity} sản phẩm "${product.name}" vào giỏ hàng`
+        );
+      }
+    } catch (error) {
+      showError("Lỗi", "Không thể thêm sản phẩm vào giỏ hàng");
+    }
   };
 
   const handleBuyNow = () => {
+    if (!user) {
+      showError("Vui lòng đăng nhập", "Bạn cần đăng nhập để mua hàng");
+      return;
+    }
     // TODO: Implement buy now functionality
     console.log(`Buying ${quantity} of product ${product.id} now`);
   };
@@ -65,11 +80,11 @@ export default function ProductInfo({ product }) {
 
       {/* Category */}
       <div className="flex items-center space-x-2">
-        <span className="text-gray-600">Danh mục:</span>
+        <span className="text-gray-600">Thể loại:</span>
         <LoadingLink
           href={`/categories/${product.categorySlug}`}
           className="text-pink-600 hover:text-pink-700 font-medium"
-          loadingText={`Đang chuyển đến danh mục ${product.category}...`}
+          loadingText={`Đang chuyển đến thể loại ${product.category}...`}
         >
           {product.category}
         </LoadingLink>
@@ -108,15 +123,25 @@ export default function ProductInfo({ product }) {
       <div className="flex space-x-4">
         <button
           onClick={handleAddToCart}
-          className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+          className={`flex-1 font-semibold py-3 px-6 rounded-lg transition-colors duration-200 ${
+            user
+              ? "bg-gray-500 hover:bg-gray-600 text-white"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+          }`}
+          disabled={!user}
         >
-          Thêm vào giỏ hàng
+          {user ? "Thêm vào giỏ hàng" : "Đăng nhập để thêm vào giỏ hàng"}
         </button>
         <button
           onClick={handleBuyNow}
-          className="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+          className={`flex-1 font-semibold py-3 px-6 rounded-lg transition-colors duration-200 ${
+            user
+              ? "bg-pink-500 hover:bg-pink-600 text-white"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+          }`}
+          disabled={!user}
         >
-          Mua ngay
+          {user ? "Mua ngay" : "Đăng nhập để mua"}
         </button>
       </div>
 

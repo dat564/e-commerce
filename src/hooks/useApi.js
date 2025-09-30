@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { getErrorMessage } from "@/utils/errorHandler";
+import { authAPI, productsAPI, ordersAPI } from "@/api";
 
 // Custom hook for API calls with loading and error states
 export const useApi = () => {
@@ -50,39 +51,21 @@ export const useAuthApi = () => {
 
   const login = useCallback(
     async (email, password, onSuccess, onError) => {
-      return execute(
-        () =>
-          import("@/utils/api").then(({ authAPI }) =>
-            authAPI.login(email, password)
-          ),
-        onSuccess,
-        onError
-      );
+      return execute(() => authAPI.login(email, password), onSuccess, onError);
     },
     [execute]
   );
 
   const register = useCallback(
     async (userData, onSuccess, onError) => {
-      return execute(
-        () =>
-          import("@/utils/api").then(({ authAPI }) =>
-            authAPI.register(userData)
-          ),
-        onSuccess,
-        onError
-      );
+      return execute(() => authAPI.register(userData), onSuccess, onError);
     },
     [execute]
   );
 
   const getProfile = useCallback(
     async (onSuccess, onError) => {
-      return execute(
-        () => import("@/utils/api").then(({ authAPI }) => authAPI.getProfile()),
-        onSuccess,
-        onError
-      );
+      return execute(() => authAPI.getProfile(), onSuccess, onError);
     },
     [execute]
   );
@@ -102,28 +85,14 @@ export const useProductsApi = () => {
 
   const getProducts = useCallback(
     async (params, onSuccess, onError) => {
-      return execute(
-        () =>
-          import("@/utils/api").then(({ productsAPI }) =>
-            productsAPI.getAll(params)
-          ),
-        onSuccess,
-        onError
-      );
+      return execute(() => productsAPI.getAll(params), onSuccess, onError);
     },
     [execute]
   );
 
   const getProduct = useCallback(
     async (id, onSuccess, onError) => {
-      return execute(
-        () =>
-          import("@/utils/api").then(({ productsAPI }) =>
-            productsAPI.getById(id)
-          ),
-        onSuccess,
-        onError
-      );
+      return execute(() => productsAPI.getById(id), onSuccess, onError);
     },
     [execute]
   );
@@ -131,10 +100,7 @@ export const useProductsApi = () => {
   const searchProducts = useCallback(
     async (query, params, onSuccess, onError) => {
       return execute(
-        () =>
-          import("@/utils/api").then(({ productsAPI }) =>
-            productsAPI.search(query, params)
-          ),
+        () => productsAPI.search(query, params),
         onSuccess,
         onError
       );
@@ -157,40 +123,21 @@ export const useOrdersApi = () => {
 
   const getOrders = useCallback(
     async (params, onSuccess, onError) => {
-      return execute(
-        () =>
-          import("@/utils/api").then(({ ordersAPI }) =>
-            ordersAPI.getAll(params)
-          ),
-        onSuccess,
-        onError
-      );
+      return execute(() => ordersAPI.getAll(params), onSuccess, onError);
     },
     [execute]
   );
 
   const getOrder = useCallback(
     async (id, onSuccess, onError) => {
-      return execute(
-        () =>
-          import("@/utils/api").then(({ ordersAPI }) => ordersAPI.getById(id)),
-        onSuccess,
-        onError
-      );
+      return execute(() => ordersAPI.getById(id), onSuccess, onError);
     },
     [execute]
   );
 
   const createOrder = useCallback(
     async (orderData, onSuccess, onError) => {
-      return execute(
-        () =>
-          import("@/utils/api").then(({ ordersAPI }) =>
-            ordersAPI.create(orderData)
-          ),
-        onSuccess,
-        onError
-      );
+      return execute(() => ordersAPI.create(orderData), onSuccess, onError);
     },
     [execute]
   );

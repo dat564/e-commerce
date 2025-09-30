@@ -35,13 +35,21 @@ export const getErrorMessage = (error) => {
   }
 };
 
-// Show error notification (you can integrate with your notification system)
-export const showError = (error) => {
+// Show error notification using Ant Design
+export const showErrorNotification = (error) => {
   const message = getErrorMessage(error);
   console.error("API Error:", error);
 
-  // You can integrate with toast notification library here
-  // For example: toast.error(message);
+  // Import notification dynamically to avoid SSR issues
+  if (typeof window !== "undefined") {
+    import("antd").then(({ notification }) => {
+      notification.error({
+        message: "Lỗi",
+        description: message,
+        duration: 5,
+      });
+    });
+  }
 
   return message;
 };

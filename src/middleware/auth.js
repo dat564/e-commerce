@@ -47,3 +47,25 @@ export function adminMiddleware(req, res, next) {
   }
   next();
 }
+
+export function verifyToken(token) {
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    console.log(
+      "Token verified successfully. Expires at:",
+      new Date(decoded.exp * 1000)
+    );
+    console.log(
+      "JWT_SECRET used for verification:",
+      JWT_SECRET.substring(0, 10) + "..."
+    );
+    return decoded;
+  } catch (error) {
+    console.error("Token verification error:", error);
+    console.log(
+      "JWT_SECRET used for verification:",
+      JWT_SECRET.substring(0, 10) + "..."
+    );
+    return null;
+  }
+}

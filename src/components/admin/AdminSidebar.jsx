@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import Link from "next/link";
+import LoadingLink from "@/components/LoadingLink";
 import {
   DashboardOutlined,
   UserOutlined,
@@ -18,36 +18,42 @@ const menuItems = [
     label: "Tổng quan",
     icon: <DashboardOutlined />,
     href: "/admin",
+    loadingText: "Đang tải trang tổng quan...",
   },
   {
     key: "users",
     label: "Quản lý tài khoản",
     icon: <UserOutlined />,
     href: "/admin/users",
+    loadingText: "Đang tải quản lý tài khoản...",
   },
   {
     key: "categories",
     label: "Quản lý thể loại",
     icon: <AppstoreOutlined />,
     href: "/admin/categories",
+    loadingText: "Đang tải quản lý thể loại...",
   },
   {
     key: "products",
     label: "Quản lý sản phẩm",
     icon: <ShoppingOutlined />,
     href: "/admin/products",
+    loadingText: "Đang tải quản lý sản phẩm...",
   },
   {
     key: "orders",
     label: "Quản lý đơn hàng",
     icon: <BarChartOutlined />,
     href: "/admin/orders",
+    loadingText: "Đang tải quản lý đơn hàng...",
   },
   {
     key: "settings",
     label: "Cài đặt",
     icon: <SettingOutlined />,
     href: "/admin/settings",
+    loadingText: "Đang tải cài đặt...",
   },
 ];
 
@@ -90,8 +96,9 @@ export default function AdminSidebar() {
             const isActive = pathname === item.href;
             return (
               <li key={item.key}>
-                <Link
+                <LoadingLink
                   href={item.href}
+                  loadingText={item.loadingText}
                   className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
                     isActive
                       ? "bg-pink-100 text-pink-600 border-r-2 border-pink-600"
@@ -102,7 +109,7 @@ export default function AdminSidebar() {
                   {!isCollapsed && (
                     <span className="font-medium">{item.label}</span>
                   )}
-                </Link>
+                </LoadingLink>
               </li>
             );
           })}

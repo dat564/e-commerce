@@ -36,7 +36,7 @@ export default function CategoriesSection() {
             Categories
           </h2>
           <h3 className="text-xl sm:text-2xl text-pink-600 mb-4">
-            Danh mục sản phẩm
+            Thể loại sản phẩm
           </h3>
           <p className="text-gray-600 text-base sm:text-lg">
             Các dòng sản phẩm chính tại THƠM THƠM

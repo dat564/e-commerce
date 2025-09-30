@@ -5,53 +5,52 @@ import Link from "next/link";
 import LoadingLink from "@/components/LoadingLink";
 
 export default function CategoryCard({ category }) {
+  // Tạo slug từ name nếu không có slug
+  const slug =
+    category.slug ||
+    category.name
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
+
   return (
-    <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden group">
+    <LoadingLink
+      href={`/categories/${slug}`}
+      className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden group h-full flex flex-col cursor-pointer"
+      loadingText={`Đang chuyển đến danh mục ${category.name}...`}
+    >
       {/* Image Container */}
-      <div className="relative h-48 sm:h-56 overflow-hidden">
-        <Image
-          src={category.image}
-          alt={category.name}
-          fill
-          className="object-cover group-hover:scale-105 transition-transform duration-300"
-        />
+      <div className="relative h-48 sm:h-56 overflow-hidden flex-shrink-0">
+        {category.image && category.image.trim() !== "" ? (
+          <Image
+            src={category.image}
+            alt={category.name}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 flex flex-col items-center justify-center">
+            <div className="text-6xl mb-2">🕯️</div>
+            <span className="text-gray-500 text-sm font-medium">M.O.B</span>
+          </div>
+        )}
         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300"></div>
       </div>
 
       {/* Content */}
-      <div className="p-6">
+      <div className="p-6 flex flex-col flex-grow">
         <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-pink-600 transition-colors">
           {category.name}
         </h3>
-        <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+        <p className="text-sm text-gray-600 mb-4 line-clamp-2 flex-grow">
           {category.description}
         </p>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-center mt-auto">
           <span className="text-pink-600 font-semibold text-sm">
             {category.productCount} sản phẩm
           </span>
-          <LoadingLink
-            href={`/categories/${category.slug}`}
-            className="inline-flex items-center px-4 py-2 bg-pink-500 text-white text-sm font-medium rounded-lg hover:bg-pink-600 transition-colors"
-            loadingText={`Đang chuyển đến danh mục ${category.name}...`}
-          >
-            Xem thêm
-            <svg
-              className="ml-2 w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </LoadingLink>
         </div>
       </div>
-    </div>
+    </LoadingLink>
   );
 }

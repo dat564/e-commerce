@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/store";
 import CheckoutForm from "./CheckoutForm";
 import CheckoutSummary from "./CheckoutSummary";
 import Footer from "@/components/Footer";
+import { showSuccess, showError } from "@/utils/notification";
 
 export default function CheckoutContent() {
   const { getSelectedItems, clearCart } = useCart();
@@ -19,10 +20,15 @@ export default function CheckoutContent() {
   // Redirect if no items selected or not logged in
   useEffect(() => {
     if (!user) {
+      showError("Vui lòng đăng nhập", "Bạn cần đăng nhập để thanh toán");
       router.push("/login");
       return;
     }
     if (selectedItems.length === 0) {
+      showWarning(
+        "Giỏ hàng trống",
+        "Vui lòng chọn sản phẩm trong giỏ hàng trước khi thanh toán"
+      );
       router.push("/cart");
       return;
     }
@@ -50,11 +56,20 @@ export default function CheckoutContent() {
       });
       clearCart();
 
+      // Show success notification
+      showSuccess(
+        "Đặt hàng thành công!",
+        `Đơn hàng ${orderData.id} đã được tạo thành công`
+      );
+
       // Redirect to success page or orders page
       router.push("/orders");
     } catch (error) {
       console.error("Error placing order:", error);
-      alert("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!");
+      showError(
+        "Lỗi đặt hàng",
+        "Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!"
+      );
     } finally {
       setIsSubmitting(false);
     }

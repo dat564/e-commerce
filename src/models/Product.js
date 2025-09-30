@@ -23,29 +23,30 @@ const productSchema = new mongoose.Schema(
       type: Number,
       min: [0, "Giá gốc không được âm"],
     },
+    image: {
+      type: String,
+      default: "",
+    },
     images: [
       {
         type: String,
-        required: true,
       },
     ],
     category: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
       required: [true, "Danh mục sản phẩm là bắt buộc"],
-      enum: [
-        "skincare",
-        "makeup",
-        "haircare",
-        "bodycare",
-        "fragrance",
-        "tools",
-      ],
     },
     brand: {
       type: String,
-      required: [true, "Thương hiệu là bắt buộc"],
       trim: true,
     },
+    features: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
     stock: {
       type: Number,
       required: [true, "Số lượng tồn kho là bắt buộc"],
@@ -64,6 +65,11 @@ const productSchema = new mongoose.Schema(
         trim: true,
       },
     ],
+    status: {
+      type: String,
+      enum: ["active", "inactive"],
+      default: "active",
+    },
     isActive: {
       type: Boolean,
       default: true,

@@ -62,7 +62,14 @@ export default function AIAssistant({ product }) {
 
       {/* Chat Modal */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end justify-end z-50 p-4">
+        <div
+          className="fixed inset-0 flex items-end justify-end z-50 p-4"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)",
+            backdropFilter: "blur(2px)",
+          }}
+        >
           <div className="bg-white rounded-t-2xl w-full max-w-md h-[600px] flex flex-col shadow-2xl">
             {/* Header */}
             <div className="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 rounded-t-2xl">

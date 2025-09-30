@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import connectDB from "@/lib/mongodb";
+import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
 
@@ -7,7 +7,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 export async function POST(request) {
   try {
-    const { name, email, password, phone, address } = await request.json();
+    const { name, email, password, phone } = await request.json();
 
     // Validation
     if (!name || !email || !password) {
@@ -41,7 +41,6 @@ export async function POST(request) {
       email,
       password,
       phone,
-      address,
     });
 
     await user.save();
@@ -62,7 +61,6 @@ export async function POST(request) {
           name: user.name,
           email: user.email,
           phone: user.phone,
-          address: user.address,
           role: user.role,
         },
         token,

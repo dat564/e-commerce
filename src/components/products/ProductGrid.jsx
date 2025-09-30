@@ -13,7 +13,7 @@ export default function ProductGrid({ products }) {
               Chưa có sản phẩm nào
             </h3>
             <p className="text-gray-500">
-              Danh mục này hiện chưa có sản phẩm nào. Vui lòng quay lại sau!
+              Thể loại này hiện chưa có sản phẩm nào. Vui lòng quay lại sau!
             </p>
           </div>
         </div>

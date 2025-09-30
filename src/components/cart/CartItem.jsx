@@ -37,12 +37,18 @@ export default function CartItem({ item }) {
 
       {/* Product Image */}
       <div className="relative w-20 h-20 flex-shrink-0">
-        <Image
-          src={item.image}
-          alt={item.name}
-          fill
-          className="object-cover rounded-lg"
-        />
+        {item.image && item.image.trim() !== "" ? (
+          <Image
+            src={item.image}
+            alt={item.name}
+            fill
+            className="object-cover rounded-lg"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
+            <span className="text-gray-400 text-2xl">📦</span>
+          </div>
+        )}
       </div>
 
       {/* Product Info */}

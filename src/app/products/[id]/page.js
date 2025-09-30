@@ -4,7 +4,9 @@ import ProductInfo from "@/components/products/ProductInfo";
 import ProductTabs from "@/components/products/ProductTabs";
 import RelatedProducts from "@/components/products/RelatedProducts";
 import AIAssistant from "@/components/products/AIAssistant";
+import LoginPrompt from "@/components/products/LoginPrompt";
 import PageTransition from "@/components/PageTransition";
+import LoadingLink from "@/components/LoadingLink";
 
 // Mock data - in real app, this would come from API/database
 const products = {
@@ -156,15 +158,31 @@ export default function ProductDetailPage({ params }) {
         <div className="bg-gray-100 py-3">
           <div className="container mx-auto px-4 max-w-6xl">
             <nav className="text-sm text-gray-600">
-              <span className="hover:text-pink-600 cursor-pointer">Home</span>
+              <LoadingLink
+                href="/"
+                className="hover:text-pink-600 cursor-pointer"
+                loadingText="Đang chuyển về trang chủ..."
+              >
+                Home
+              </LoadingLink>
               <span className="mx-2">/</span>
-              <span className="hover:text-pink-600 cursor-pointer">
+              <LoadingLink
+                href="/products"
+                className="hover:text-pink-600 cursor-pointer"
+                loadingText="Đang chuyển đến sản phẩm..."
+              >
                 Sản phẩm của M.O.B
-              </span>
+              </LoadingLink>
               <span className="mx-2">/</span>
-              <span className="hover:text-pink-600 cursor-pointer">
+              <LoadingLink
+                href={`/categories/${product.category
+                  .toLowerCase()
+                  .replace(/\s+/g, "-")}`}
+                className="hover:text-pink-600 cursor-pointer"
+                loadingText="Đang chuyển đến danh mục..."
+              >
                 {product.category}
-              </span>
+              </LoadingLink>
               <span className="mx-2">/</span>
               <span className="text-gray-800 line-clamp-1">{product.name}</span>
             </nav>
@@ -174,6 +192,9 @@ export default function ProductDetailPage({ params }) {
         {/* Main Product Content */}
         <div className="py-8">
           <div className="container mx-auto px-4 max-w-6xl">
+            {/* Login Prompt */}
+            <LoginPrompt />
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
               {/* Product Images */}
               <ProductImageGallery product={product} />

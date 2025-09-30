@@ -28,12 +28,18 @@ export default function CheckoutSummary({ items }) {
         {items.map((item) => (
           <div key={item.id} className="flex items-center space-x-3">
             <div className="relative w-16 h-16 flex-shrink-0">
-              <Image
-                src={item.image}
-                alt={item.name}
-                fill
-                className="object-cover rounded-lg"
-              />
+              {item.image && item.image.trim() !== "" ? (
+                <Image
+                  src={item.image}
+                  alt={item.name}
+                  fill
+                  className="object-cover rounded-lg"
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
+                  <span className="text-gray-400 text-lg">📦</span>
+                </div>
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-sm font-medium text-gray-900 line-clamp-2">

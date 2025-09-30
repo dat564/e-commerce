@@ -81,6 +81,9 @@ export default function OrderTable({ orders, onViewDetails }) {
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-16">
+                STT
+              </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Mã đơn
               </th>
@@ -102,8 +105,13 @@ export default function OrderTable({ orders, onViewDetails }) {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {orders.map((order) => (
+            {orders.map((order, index) => (
               <tr key={order.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap text-center">
+                  <div className="text-sm font-medium text-gray-900">
+                    {index + 1}
+                  </div>
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900">
                     #{order.id}

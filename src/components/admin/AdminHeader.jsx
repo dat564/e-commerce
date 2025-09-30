@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/store";
 import { UserOutlined, LogoutOutlined, HomeOutlined } from "@ant-design/icons";
 
 export default function AdminHeader() {

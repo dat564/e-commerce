@@ -1,18 +1,15 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "@/components/ClientLayout";
-import { LoadingProvider } from "@/contexts/LoadingContext";
-import { CartProvider } from "@/contexts/CartContext";
-import { AuthProvider } from "@/contexts/AuthContext";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import ClientProviders from "@/components/ClientProviders";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
 });
 
@@ -25,17 +22,12 @@ export default function RootLayout({ children }) {
   return (
     <html lang="vi" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <LoadingProvider>
-          <AuthProvider>
-            <CartProvider>
-              <ClientLayout>{children}</ClientLayout>
-              <LoadingSpinner />
-            </CartProvider>
-          </AuthProvider>
-        </LoadingProvider>
+        <ClientProviders>
+          <ClientLayout>{children}</ClientLayout>
+        </ClientProviders>
       </body>
     </html>
   );
