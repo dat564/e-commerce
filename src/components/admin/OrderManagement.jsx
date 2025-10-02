@@ -114,9 +114,16 @@ export default function OrderManagement() {
   const handleUpdateOrder = async (values) => {
     try {
       setLoading(true);
+      // Map orderStatus to status for API compatibility
+      const updateData = {
+        ...values,
+        status: values.orderStatus,
+      };
+      delete updateData.orderStatus; // Remove the old field name
+
       const response = await apiClient.put(
         `/api/orders/${selectedOrder._id}`,
-        values
+        updateData
       );
 
       if (response.data.success) {
