@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import LoginForm from "@/components/LoginForm";
 import PageTransition from "@/components/PageTransition";
 
@@ -9,7 +10,15 @@ export const metadata = {
 export default function LoginPage() {
   return (
     <PageTransition>
-      <LoginForm />
+      <Suspense
+        fallback={
+          <div className="min-h-[600px] flex items-center justify-center">
+            Đang tải...
+          </div>
+        }
+      >
+        <LoginForm />
+      </Suspense>
     </PageTransition>
   );
 }

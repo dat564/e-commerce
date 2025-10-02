@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import RegisterForm from "@/components/RegisterForm";
 import PageTransition from "@/components/PageTransition";
 
@@ -9,7 +10,15 @@ export const metadata = {
 export default function RegisterPage() {
   return (
     <PageTransition>
-      <RegisterForm />
+      <Suspense
+        fallback={
+          <div className="min-h-[600px] flex items-center justify-center">
+            Đang tải...
+          </div>
+        }
+      >
+        <RegisterForm />
+      </Suspense>
     </PageTransition>
   );
 }
