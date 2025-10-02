@@ -1,45 +1,18 @@
 "use client";
 
 import { useCart } from "@/contexts/CartContext";
-import { useAuth } from "@/store";
 import CartItem from "./CartItem";
 import OrderSummary from "./OrderSummary";
 import LoadingLink from "@/components/LoadingLink";
 
 export default function CartContent() {
   const { items, selectAll, getSelectedItems } = useCart();
-  const { user } = useAuth();
   const selectedItems = getSelectedItems();
   const allSelected = items.length > 0 && selectedItems.length === items.length;
 
   const handleSelectAll = () => {
     selectAll(!allSelected);
   };
-
-  if (!user) {
-    return (
-      <div className="py-12">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="text-center">
-            <div className="text-6xl mb-4">🔒</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">
-              Vui lòng đăng nhập
-            </h2>
-            <p className="text-gray-600 mb-8">
-              Bạn cần đăng nhập để xem và quản lý giỏ hàng
-            </p>
-            <LoadingLink
-              href="/login"
-              className="inline-flex items-center px-6 py-3 bg-pink-500 text-white font-semibold rounded-lg hover:bg-pink-600 transition-colors"
-              loadingText="Đang chuyển đến trang đăng nhập..."
-            >
-              Đăng nhập ngay
-            </LoadingLink>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (items.length === 0) {
     return (

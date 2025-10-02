@@ -1,48 +1,141 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   BarChartOutlined,
   UserOutlined,
   ShoppingOutlined,
   AppstoreOutlined,
 } from "@ant-design/icons";
-
-const stats = [
-  {
-    title: "Tổng người dùng",
-    value: "1,234",
-    change: "+12%",
-    changeType: "positive",
-    icon: <UserOutlined className="text-2xl" />,
-    color: "bg-blue-500",
-  },
-  {
-    title: "Tổng sản phẩm",
-    value: "567",
-    change: "+8%",
-    changeType: "positive",
-    icon: <ShoppingOutlined className="text-2xl" />,
-    color: "bg-green-500",
-  },
-  {
-    title: "Tổng đơn hàng",
-    value: "89",
-    change: "+23%",
-    changeType: "positive",
-    icon: <BarChartOutlined className="text-2xl" />,
-    color: "bg-purple-500",
-  },
-  {
-    title: "Thể loại",
-    value: "12",
-    change: "+2",
-    changeType: "positive",
-    icon: <AppstoreOutlined className="text-2xl" />,
-    color: "bg-pink-500",
-  },
-];
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { useAuth } from "@/store/hooks/useAuth";
 
 export default function AdminDashboard() {
+  const [stats, setStats] = useState(null);
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [bestSellingProducts, setBestSellingProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { authHeaders, isAdmin } = useAuth();
+
+  useEffect(() => {
+    if (authHeaders.Authorization && isAdmin) {
+      fetchDashboardData();
+    } else if (!authHeaders.Authorization) {
+      setError("Vui lòng đăng nhập để truy cập trang admin");
+      setLoading(false);
+    }
+  }, [authHeaders, isAdmin]);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+
+      // Check if user is admin
+      if (!isAdmin) {
+        setError("Bạn không có quyền truy cập trang admin");
+        return;
+      }
+
+      const response = await fetch("/api/admin/stats", {
+        headers: authHeaders,
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        const {
+          stats: statsData,
+          recentOrders: orders,
+          bestSellingProducts: products,
+        } = result.data;
+
+        // Format stats data
+        const formattedStats = [
+          {
+            title: "Tổng người dùng",
+            value: statsData.totalUsers.toLocaleString(),
+            change: `${statsData.userChange >= 0 ? "+" : ""}${
+              statsData.userChange
+            }%`,
+            changeType: statsData.userChange >= 0 ? "positive" : "negative",
+            icon: <UserOutlined className="text-2xl" />,
+            color: "bg-blue-500",
+          },
+          {
+            title: "Tổng sản phẩm",
+            value: statsData.totalProducts.toLocaleString(),
+            change: `${statsData.productChange >= 0 ? "+" : ""}${
+              statsData.productChange
+            }%`,
+            changeType: statsData.productChange >= 0 ? "positive" : "negative",
+            icon: <ShoppingOutlined className="text-2xl" />,
+            color: "bg-green-500",
+          },
+          {
+            title: "Tổng đơn hàng",
+            value: statsData.totalOrders.toLocaleString(),
+            change: `${statsData.orderChange >= 0 ? "+" : ""}${
+              statsData.orderChange
+            }%`,
+            changeType: statsData.orderChange >= 0 ? "positive" : "negative",
+            icon: <BarChartOutlined className="text-2xl" />,
+            color: "bg-purple-500",
+          },
+          {
+            title: "Thể loại",
+            value: statsData.totalCategories.toLocaleString(),
+            change: `${statsData.categoryChange >= 0 ? "+" : ""}${
+              statsData.categoryChange
+            }`,
+            changeType: statsData.categoryChange >= 0 ? "positive" : "negative",
+            icon: <AppstoreOutlined className="text-2xl" />,
+            color: "bg-pink-500",
+          },
+        ];
+
+        setStats(formattedStats);
+        setRecentOrders(orders);
+        setBestSellingProducts(products);
+      } else {
+        setError(result.message || "Có lỗi xảy ra khi tải dữ liệu");
+      }
+    } catch (err) {
+      console.error("Error fetching dashboard data:", err);
+      setError("Không thể kết nối đến server");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-600 mb-4">{error}</p>
+        <button
+          onClick={fetchDashboardData}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Thử lại
+        </button>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-600">Không có dữ liệu để hiển thị</p>
+      </div>
+    );
+  }
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -94,50 +187,29 @@ export default function AdminDashboard() {
             Đơn hàng gần đây
           </h3>
           <div className="space-y-3">
-            {[
-              {
-                id: "#2029",
-                customer: "Nguyễn Văn A",
-                amount: "1,527,000₫",
-                status: "Đã hủy",
-              },
-              {
-                id: "#2028",
-                customer: "Trần Thị B",
-                amount: "999,000₫",
-                status: "Đang xử lý",
-              },
-              {
-                id: "#2027",
-                customer: "Lê Văn C",
-                amount: "2,100,000₫",
-                status: "Đã giao hàng",
-              },
-            ].map((order, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0"
-              >
-                <div>
-                  <p className="font-medium text-gray-800">{order.id}</p>
-                  <p className="text-sm text-gray-600">{order.customer}</p>
+            {recentOrders.length > 0 ? (
+              recentOrders.map((order, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0"
+                >
+                  <div>
+                    <p className="font-medium text-gray-800">{order.id}</p>
+                    <p className="text-sm text-gray-600">{order.customer}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-gray-800">{order.amount}</p>
+                    <p className={`text-sm ${order.statusColor}`}>
+                      {order.status}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-medium text-gray-800">{order.amount}</p>
-                  <p
-                    className={`text-sm ${
-                      order.status === "Đã giao hàng"
-                        ? "text-green-600"
-                        : order.status === "Đang xử lý"
-                        ? "text-blue-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {order.status}
-                  </p>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-gray-500 text-center py-4">
+                Chưa có đơn hàng nào
+              </p>
+            )}
           </div>
         </div>
 
@@ -147,69 +219,31 @@ export default function AdminDashboard() {
             Sản phẩm bán chạy
           </h3>
           <div className="space-y-3">
-            {[
-              {
-                name: "Nến Thơm White Tea & Sage",
-                sales: 45,
-                revenue: "22,455,000₫",
-              },
-              {
-                name: "Nến Thơm Stress Relief",
-                sales: 38,
-                revenue: "18,962,000₫",
-              },
-              {
-                name: "Nến Thơm Peppermint Bark",
-                sales: 32,
-                revenue: "15,968,000₫",
-              },
-            ].map((product, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0"
-              >
-                <div>
-                  <p className="font-medium text-gray-800">{product.name}</p>
-                  <p className="text-sm text-gray-600">
-                    {product.sales} đã bán
-                  </p>
+            {bestSellingProducts.length > 0 ? (
+              bestSellingProducts.map((product, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0"
+                >
+                  <div>
+                    <p className="font-medium text-gray-800">{product.name}</p>
+                    <p className="text-sm text-gray-600">
+                      {product.sales} đã bán
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-gray-800">
+                      {product.revenue}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-medium text-gray-800">{product.revenue}</p>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-gray-500 text-center py-4">
+                Chưa có sản phẩm nào được bán
+              </p>
+            )}
           </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">
-          Thao tác nhanh
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            <UserOutlined className="text-pink-500 text-xl" />
-            <div className="text-left">
-              <p className="font-medium text-gray-800">Thêm người dùng</p>
-              <p className="text-sm text-gray-600">Tạo tài khoản mới</p>
-            </div>
-          </button>
-          <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            <AppstoreOutlined className="text-pink-500 text-xl" />
-            <div className="text-left">
-              <p className="font-medium text-gray-800">Thêm thể loại</p>
-              <p className="text-sm text-gray-600">Tạo danh mục mới</p>
-            </div>
-          </button>
-          <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            <ShoppingOutlined className="text-pink-500 text-xl" />
-            <div className="text-left">
-              <p className="font-medium text-gray-800">Thêm sản phẩm</p>
-              <p className="text-sm text-gray-600">Tạo sản phẩm mới</p>
-            </div>
-          </button>
         </div>
       </div>
     </div>

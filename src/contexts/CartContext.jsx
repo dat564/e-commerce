@@ -1,15 +1,7 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useReducer,
-  useEffect,
-  useRef,
-} from "react";
-import { useAuth } from "@/store";
-import { showError, showWarning } from "@/utils/notification";
-import { cartAPI } from "@/api";
+import { createContext, useContext, useReducer, useEffect } from "react";
+import { showError, showSuccess } from "@/utils/notification";
 
 const CartContext = createContext();
 
@@ -75,7 +67,7 @@ const cartReducer = (state, action) => {
         items: [],
       };
 
-    case "LOAD_USER_CART":
+    case "LOAD_CART":
       return {
         ...state,
         items: action.payload || [],
@@ -90,82 +82,55 @@ export const CartProvider = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, {
     items: [],
   });
-  const { user } = useAuth();
-  const loadedUserIdRef = useRef(null);
-  const isLoadingRef = useRef(false);
 
-  // Load cart from API when user changes
+  // Load cart from localStorage on mount
   useEffect(() => {
-    const loadCart = async () => {
-      // Chỉ load cart khi:
-      // 1. Có user và chưa load cart cho user này
-      // 2. Hoặc user đã logout (để clear cart)
-      if (user) {
-        const currentUserId = user._id;
-
-        // Kiểm tra xem đã load cart cho user này chưa
-        if (
-          loadedUserIdRef.current === currentUserId &&
-          !isLoadingRef.current
-        ) {
-          return; // Đã load rồi, không cần load lại
+    const loadCartFromStorage = () => {
+      try {
+        const savedCart = localStorage.getItem("cart");
+        if (savedCart) {
+          const cartData = JSON.parse(savedCart);
+          dispatch({
+            type: "LOAD_CART",
+            payload: cartData,
+          });
         }
-
-        // Kiểm tra xem đang load không
-        if (isLoadingRef.current) {
-          return; // Đang load rồi, không load lại
-        }
-
-        try {
-          isLoadingRef.current = true;
-          const response = await cartAPI.getCart();
-          if (response.success) {
-            dispatch({
-              type: "LOAD_USER_CART",
-              payload: response.data.cart || [],
-            });
-            loadedUserIdRef.current = currentUserId; // Đánh dấu đã load
-          }
-        } catch (error) {
-          console.error("Error loading cart:", error);
-          dispatch({ type: "CLEAR_CART" });
-        } finally {
-          isLoadingRef.current = false;
-        }
-      } else {
-        // Clear cart when user logs out
-        dispatch({ type: "CLEAR_CART" });
-        loadedUserIdRef.current = null; // Reset loaded user
+      } catch (error) {
+        console.error("Error loading cart from localStorage:", error);
+        localStorage.removeItem("cart");
       }
     };
 
-    loadCart();
-  }, [user?._id]); // Chỉ depend vào user _id, không phải toàn bộ user object
+    loadCartFromStorage();
+  }, []);
 
-  const addToCart = async (product, quantity = 1) => {
-    // Check if user is logged in
-    if (!user) {
-      showWarning(
-        "Vui lòng đăng nhập",
-        "Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng"
-      );
-      return false;
+  // Save cart to localStorage whenever cart changes
+  useEffect(() => {
+    if (state.items.length > 0) {
+      localStorage.setItem("cart", JSON.stringify(state.items));
+    } else {
+      localStorage.removeItem("cart");
     }
+  }, [state.items]);
 
+  const addToCart = (product, quantity = 1) => {
     try {
-      const response = await cartAPI.addToCart(product.id, quantity);
-      if (response.success) {
-        // Update local state with API response
-        dispatch({ type: "LOAD_USER_CART", payload: response.data.cart || [] });
-        // Không cần reset loadedUserIdRef vì vẫn là cùng user
-        return true;
-      } else {
-        showError(
-          "Lỗi",
-          response.message || "Không thể thêm sản phẩm vào giỏ hàng"
-        );
-        return false;
-      }
+      const cartItem = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        quantity: quantity,
+        selected: true,
+      };
+
+      dispatch({
+        type: "ADD_TO_CART",
+        payload: cartItem,
+      });
+
+      showSuccess("Thành công", "Đã thêm sản phẩm vào giỏ hàng");
+      return true;
     } catch (error) {
       console.error("Add to cart error:", error);
       showError("Lỗi", "Không thể thêm sản phẩm vào giỏ hàng");
@@ -173,43 +138,25 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const removeFromCart = async (productId) => {
-    if (!user) return;
-
+  const removeFromCart = (productId) => {
     try {
-      const response = await cartAPI.removeFromCart(productId);
-      if (response.success) {
-        dispatch({ type: "LOAD_USER_CART", payload: response.data.cart || [] });
-        // Không cần reset loadedUserIdRef vì vẫn là cùng user
-      } else {
-        showError(
-          "Lỗi",
-          response.message || "Không thể xóa sản phẩm khỏi giỏ hàng"
-        );
-      }
+      dispatch({ type: "REMOVE_FROM_CART", payload: productId });
+      showSuccess("Thành công", "Đã xóa sản phẩm khỏi giỏ hàng");
     } catch (error) {
       console.error("Remove from cart error:", error);
       showError("Lỗi", "Không thể xóa sản phẩm khỏi giỏ hàng");
     }
   };
 
-  const updateQuantity = async (productId, quantity) => {
-    if (!user) return;
-
+  const updateQuantity = (productId, quantity) => {
     try {
       if (quantity <= 0) {
-        await removeFromCart(productId);
+        removeFromCart(productId);
       } else {
-        const response = await cartAPI.updateCartItem(productId, quantity);
-        if (response.success) {
-          dispatch({
-            type: "LOAD_USER_CART",
-            payload: response.data.cart || [],
-          });
-          // Không cần reset loadedUserIdRef vì vẫn là cùng user
-        } else {
-          showError("Lỗi", response.message || "Không thể cập nhật số lượng");
-        }
+        dispatch({
+          type: "UPDATE_QUANTITY",
+          payload: { id: productId, quantity },
+        });
       }
     } catch (error) {
       console.error("Update quantity error:", error);
@@ -225,21 +172,11 @@ export const CartProvider = ({ children }) => {
     dispatch({ type: "SELECT_ALL", payload: selected });
   };
 
-  const clearCart = async () => {
-    if (!user) return;
-
+  const clearCart = () => {
     try {
-      const response = await cartAPI.clearCart();
-      if (response.success) {
-        dispatch({ type: "CLEAR_CART" });
-        // Reset loadedUserIdRef vì đã clear cart
-        loadedUserIdRef.current = null;
-      } else {
-        showError("Lỗi", response.message || "Không thể xóa giỏ hàng");
-      }
+      dispatch({ type: "CLEAR_CART" });
     } catch (error) {
       console.error("Clear cart error:", error);
-      showError("Lỗi", "Không thể xóa giỏ hàng");
     }
   };
 

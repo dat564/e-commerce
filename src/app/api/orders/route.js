@@ -20,7 +20,7 @@ export async function GET(request) {
     // Xây dựng query
     let query = { user: user._id };
     if (status) {
-      query.orderStatus = status;
+      query.status = status;
     }
 
     // Tính toán skip
@@ -68,7 +68,8 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const orderData = await request.json();
-    const { items, shippingAddress, paymentMethod, notes } = orderData;
+    const { items, shippingAddress, paymentMethod, notes, customer } =
+      orderData;
 
     await connectDB();
 
@@ -130,14 +131,15 @@ export async function POST(request) {
       });
     }
 
-    // Tính phí ship (có thể tùy chỉnh logic này)
-    const shippingFee = subtotal >= 500000 ? 0 : 30000;
+    // Tính phí ship - mặc định 30k
+    const shippingFee = 30000;
     const total = subtotal + shippingFee;
 
     // Tạo đơn hàng
     const order = new Order({
       user: user._id,
       items: orderItems,
+      customer,
       shippingAddress,
       paymentMethod,
       subtotal,
@@ -148,12 +150,9 @@ export async function POST(request) {
 
     await order.save();
 
-    // Cập nhật số lượng tồn kho
-    for (const item of orderItems) {
-      await Product.findByIdAndUpdate(item.product, {
-        $inc: { stock: -item.quantity },
-      });
-    }
+    // KHÔNG giảm số lượng ngay khi tạo đơn hàng
+    // Số lượng chỉ giảm khi đơn hàng được confirmed hoặc paid
+    // Logic này sẽ được xử lý trong API update order status
 
     // Populate để trả về thông tin đầy đủ
     const populatedOrder = await Order.findById(order._id)

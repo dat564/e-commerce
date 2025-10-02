@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ScrollToTop from "@/components/ScrollToTop";
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
@@ -10,13 +11,19 @@ export default function ClientLayout({ children }) {
 
   // Don't render Header and Footer for admin routes
   if (isAdminRoute) {
-    return <>{children}</>;
+    return (
+      <>
+        <ScrollToTop />
+        {children}
+      </>
+    );
   }
 
   return (
     <>
+      <ScrollToTop />
       <Header />
-      <main className="min-h-screen">{children}</main>
+      <main className="min-h-[600px] pb-8">{children}</main>
       <Footer />
     </>
   );

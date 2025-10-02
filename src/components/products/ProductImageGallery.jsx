@@ -6,12 +6,20 @@ import Image from "next/image";
 export default function ProductImageGallery({ product }) {
   const [selectedImage, setSelectedImage] = useState(0);
 
+  // Ensure we have images array, fallback to single image or placeholder
+  const images =
+    product.images && product.images.length > 0
+      ? product.images
+      : product.image
+      ? [product.image]
+      : ["/assets/images/products/placeholder.jpg"];
+
   return (
     <div className="space-y-4">
       {/* Main Image */}
       <div className="relative aspect-square bg-gray-100 rounded-xl overflow-hidden">
         <Image
-          src={product.images[selectedImage]}
+          src={images[selectedImage]}
           alt={product.name}
           fill
           className="object-cover"
@@ -19,14 +27,12 @@ export default function ProductImageGallery({ product }) {
         />
 
         {/* Navigation Arrows */}
-        {product.images.length > 1 && (
+        {images.length > 1 && (
           <>
             <button
               onClick={() =>
                 setSelectedImage(
-                  selectedImage === 0
-                    ? product.images.length - 1
-                    : selectedImage - 1
+                  selectedImage === 0 ? images.length - 1 : selectedImage - 1
                 )
               }
               className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all duration-200"
@@ -48,9 +54,7 @@ export default function ProductImageGallery({ product }) {
             <button
               onClick={() =>
                 setSelectedImage(
-                  selectedImage === product.images.length - 1
-                    ? 0
-                    : selectedImage + 1
+                  selectedImage === images.length - 1 ? 0 : selectedImage + 1
                 )
               }
               className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all duration-200"
@@ -73,39 +77,51 @@ export default function ProductImageGallery({ product }) {
         )}
 
         {/* Feature Labels */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-4 left-4">
-            <span className="bg-pink-500 text-white text-xs px-2 py-1 rounded-full">
-              {product.features[0]}
-            </span>
+        {product.features && product.features.length > 0 && (
+          <div className="absolute inset-0 pointer-events-none">
+            {product.features[0] && (
+              <div className="absolute top-4 left-4">
+                <span className="bg-pink-500 text-white text-xs px-2 py-1 rounded-full">
+                  {product.features[0]}
+                </span>
+              </div>
+            )}
+            {product.features[1] && (
+              <div className="absolute top-1/4 left-4">
+                <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                  {product.features[1]}
+                </span>
+              </div>
+            )}
+            {product.features[2] && (
+              <div className="absolute bottom-1/4 left-4">
+                <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                  {product.features[2]}
+                </span>
+              </div>
+            )}
+            {product.features[3] && (
+              <div className="absolute bottom-1/3 right-4">
+                <span className="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
+                  {product.features[3]}
+                </span>
+              </div>
+            )}
+            {product.features[4] && (
+              <div className="absolute bottom-4 right-4">
+                <span className="bg-purple-500 text-white text-xs px-2 py-1 rounded-full">
+                  {product.features[4]}
+                </span>
+              </div>
+            )}
           </div>
-          <div className="absolute top-1/4 left-4">
-            <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-              {product.features[1]}
-            </span>
-          </div>
-          <div className="absolute bottom-1/4 left-4">
-            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
-              {product.features[2]}
-            </span>
-          </div>
-          <div className="absolute bottom-1/3 right-4">
-            <span className="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
-              {product.features[3]}
-            </span>
-          </div>
-          <div className="absolute bottom-4 right-4">
-            <span className="bg-purple-500 text-white text-xs px-2 py-1 rounded-full">
-              {product.features[4]}
-            </span>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Thumbnail Images */}
-      {product.images.length > 1 && (
+      {images.length > 1 && (
         <div className="flex space-x-2 overflow-x-auto">
-          {product.images.map((image, index) => (
+          {images.map((image, index) => (
             <button
               key={index}
               onClick={() => setSelectedImage(index)}

@@ -48,13 +48,6 @@ const menuItems = [
     href: "/admin/orders",
     loadingText: "Đang tải quản lý đơn hàng...",
   },
-  {
-    key: "settings",
-    label: "Cài đặt",
-    icon: <SettingOutlined />,
-    href: "/admin/settings",
-    loadingText: "Đang tải cài đặt...",
-  },
 ];
 
 export default function AdminSidebar() {
@@ -63,7 +56,7 @@ export default function AdminSidebar() {
 
   return (
     <aside
-      className={`bg-white shadow-sm border-r border-gray-200 transition-all duration-300 ${
+      className={`bg-white shadow-sm border-r border-gray-200 transition-all duration-300 flex flex-col ${
         isCollapsed ? "w-16" : "w-64"
       }`}
     >
@@ -118,7 +111,7 @@ export default function AdminSidebar() {
 
       {/* Admin Info */}
       {!isCollapsed && (
-        <div className="absolute bottom-4 left-4 right-4">
+        <div className="mt-auto p-4">
           <div className="bg-gray-50 rounded-lg p-3">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   EyeOutlined,
   EyeInvisibleOutlined,
@@ -32,6 +32,7 @@ export default function RegisterForm() {
   });
   const { login } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -102,8 +103,15 @@ export default function RegisterForm() {
           `Chào mừng ${data.data.user.name} đến với M.O.B Love Store`
         );
 
-        // Redirect to home page
-        router.push("/");
+        // Check if there's a redirect URL in query params
+        const redirectUrl = searchParams.get("redirect");
+
+        // Redirect to the saved page or home page
+        if (redirectUrl) {
+          router.push(decodeURIComponent(redirectUrl));
+        } else {
+          router.push("/");
+        }
       } else {
         const errorMsg = data.message || "Đăng ký thất bại";
         setError(errorMsg);
@@ -121,7 +129,7 @@ export default function RegisterForm() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4 relative"
+      className="min-h-[600px] flex items-center justify-center p-4 relative"
       style={{
         backgroundImage: "url(/assets/images/login/background.jpg)",
         backgroundSize: "cover",
@@ -169,7 +177,7 @@ export default function RegisterForm() {
                 value={formData.name}
                 onChange={handleInputChange}
                 disabled={isLoading}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
+                className="duration-200 block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
                 placeholder="Nhập họ và tên"
                 required
               />
@@ -195,7 +203,7 @@ export default function RegisterForm() {
                 value={formData.email}
                 onChange={handleInputChange}
                 disabled={isLoading}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
+                className="duration-200 block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
                 placeholder="Nhập email"
                 required
               />
@@ -221,7 +229,7 @@ export default function RegisterForm() {
                 value={formData.phone}
                 onChange={handleInputChange}
                 disabled={isLoading}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
+                className="duration-200 block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
                 placeholder="Nhập số điện thoại"
               />
             </div>
@@ -246,7 +254,7 @@ export default function RegisterForm() {
                 value={formData.password}
                 onChange={handleInputChange}
                 disabled={isLoading}
-                className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
+                className="duration-200 block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
                 placeholder="Nhập mật khẩu"
                 required
               />
@@ -284,7 +292,7 @@ export default function RegisterForm() {
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 disabled={isLoading}
-                className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
+                className="duration-200 block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
                 placeholder="Nhập lại mật khẩu"
                 required
               />
@@ -323,7 +331,11 @@ export default function RegisterForm() {
           <div className="text-center text-sm">
             <span className="text-gray-600">Đã có tài khoản? </span>
             <LoadingLink
-              href="/login"
+              href={`/login${
+                searchParams.get("redirect")
+                  ? `?redirect=${searchParams.get("redirect")}`
+                  : ""
+              }`}
               className="text-pink-600 hover:text-pink-700 transition-colors font-medium"
               loadingText="Đang chuyển đến trang đăng nhập..."
             >

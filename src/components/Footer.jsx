@@ -138,8 +138,8 @@ export default function Footer() {
               </h3>
               <div className="space-y-2 text-sm text-gray-600">
                 <p>Khu CNC Hoà Lạc, Thạch Thất, Hà Nội</p>
-                <p>096 117 6223</p>
-                <p>thomthom@gmail.com</p>
+                <p>0968 737 913</p>
+                <p>mob@gmail.com</p>
                 <p>8:00 - 17:00, Thứ 2 - Thứ 7</p>
               </div>
             </div>
@@ -156,7 +156,7 @@ export default function Footer() {
                 <input
                   type="email"
                   placeholder="Email của bạn"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm"
+                  className="duration-200 flex-1 px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm"
                 />
                 <button className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-r-lg transition-colors">
                   <svg

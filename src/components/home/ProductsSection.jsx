@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import LoadingLink from "@/components/LoadingLink";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import LoadingLink from "@/components/LoadingLink";
 
 export default function ProductsSection() {
   const [products, setProducts] = useState([]);
@@ -17,9 +17,8 @@ export default function ProductsSection() {
           "/api/products?status=active&limit=8&sortBy=createdAt&sortOrder=desc"
         );
         const data = await response.json();
-
         if (data.success) {
-          setProducts(data.data.products);
+          setProducts(data.data.products || []);
         }
       } catch (err) {
         console.error("Error fetching products:", err);
@@ -38,32 +37,9 @@ export default function ProductsSection() {
     }).format(price);
   };
 
-  if (loading) {
-    return (
-      <section className="py-12 sm:py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-gray-300 mb-4">
-              New arrival
-            </h2>
-            <h3 className="text-xl sm:text-2xl text-pink-600 mb-4">
-              Sản phẩm nổi bật
-            </h3>
-            <p className="text-gray-600 text-base sm:text-lg">
-              Các dòng sản phẩm nổi bật THƠM THƠM
-            </p>
-          </div>
-          <div className="flex justify-center items-center py-20">
-            <LoadingSpinner size="lg" />
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section className="py-12 sm:py-16 bg-white">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 max-w-6xl">
         {/* Section Header */}
         <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-gray-300 mb-4">
@@ -77,13 +53,17 @@ export default function ProductsSection() {
           </p>
         </div>
 
-        {/* Products Grid */}
-        {products.length > 0 ? (
+        {/* Content with conditional rendering */}
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <LoadingSpinner size="lg" text="Đang tải sản phẩm..." />
+          </div>
+        ) : products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {products.map((product) => (
               <LoadingLink
-                key={product._id}
-                href={`/products/${product._id}`}
+                key={product.id}
+                href={`/products/${product.id}`}
                 className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group cursor-pointer"
                 loadingText={`Đang xem chi tiết ${product.name}...`}
               >
@@ -143,11 +123,11 @@ export default function ProductsSection() {
         {/* View More Button */}
         <div className="text-center mt-8 sm:mt-12">
           <LoadingLink
-            href="/products"
+            href="/categories"
             className="bg-pink-600 text-white px-8 py-3 rounded-lg hover:bg-pink-700 transition-colors inline-block"
-            loadingText="Đang chuyển đến trang sản phẩm..."
+            loadingText="Đang chuyển đến danh mục..."
           >
-            Xem tất cả sản phẩm
+            Xem tất cả danh mục
           </LoadingLink>
         </div>
       </div>

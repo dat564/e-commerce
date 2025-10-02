@@ -26,40 +26,62 @@ const RecoilInitializer = ({ children }) => {
       // Load tokens from localStorage on mount
       const savedAccessToken = localStorage.getItem("accessToken");
       const savedRefreshToken = localStorage.getItem("refreshToken");
+      const savedUser = localStorage.getItem("user");
 
       if (savedAccessToken && savedRefreshToken) {
-        // Set tokens first
+        // Set tokens and authentication state immediately
         setAccessToken(savedAccessToken);
         setRefreshToken(savedRefreshToken);
+        setIsAuthenticated(true);
 
-        // Try to get fresh user data from API
-        const success = await getUser();
-
-        if (!success) {
-          // If API call failed, try to load from localStorage as fallback
-          const savedUser = localStorage.getItem("user");
-          if (savedUser) {
-            try {
-              const userData = JSON.parse(savedUser);
-              setUser(userData);
-              setIsAuthenticated(true);
-            } catch (error) {
-              console.error("Error parsing saved user:", error);
-              // Clear invalid data
-              localStorage.removeItem("user");
-              localStorage.removeItem("accessToken");
-              localStorage.removeItem("refreshToken");
-              setUser(null);
-              setAccessToken(null);
-              setRefreshToken(null);
-              setIsAuthenticated(false);
-            }
-          } else {
-            // No user data in localStorage, clear auth state
+        // Load user from localStorage immediately (fast)
+        if (savedUser) {
+          try {
+            const userData = JSON.parse(savedUser);
+            setUser(userData);
+          } catch (error) {
+            console.error("Error parsing saved user:", error);
+            // Clear invalid data
+            localStorage.removeItem("user");
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
             setUser(null);
             setAccessToken(null);
             setRefreshToken(null);
             setIsAuthenticated(false);
+          }
+        }
+
+        // Only refresh user data if it's old (older than 5 minutes)
+        if (savedUser) {
+          try {
+            const userData = JSON.parse(savedUser);
+            const userTimestamp = userData._lastUpdated || 0;
+            const now = Date.now();
+            const timeDiff = now - userTimestamp;
+
+            // Only refresh if user data is older than 5 minutes
+            if (timeDiff > 5 * 60 * 1000) {
+              console.log(
+                "🔄 RecoilInitializer: User data is old, refreshing from API"
+              );
+              await getUser(false); // Don't show loading spinner
+            } else {
+              console.log(
+                "✅ RecoilInitializer: User data is fresh, skipping API call"
+              );
+            }
+          } catch (parseError) {
+            console.log("❌ Failed to parse user data, refreshing from API");
+            await getUser(false);
+          }
+        } else {
+          // No user data, try to get it from API
+          console.log("🔄 RecoilInitializer: No user data, fetching from API");
+          try {
+            await getUser(false);
+          } catch (error) {
+            console.log("❌ Failed to get user data:", error);
           }
         }
       } else {

@@ -13,16 +13,24 @@ import {
 } from "@ant-design/icons";
 import Link from "next/link";
 import LoadingLink from "@/components/LoadingLink";
+import SearchBar from "@/components/SearchBar";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/store";
 
 export default function Header() {
   const { getTotalItems } = useCart();
-  const { user, logout, isAdmin } = useAuth();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
   const cartItemsCount = getTotalItems();
   const pathname = usePathname();
+
+  // Get user data from Recoil state
+  const { user, isAdmin, logout } = useAuth();
+
+  // Debug logging
+  useEffect(() => {
+    console.log("🔍 Header: User state changed:", { user, isAdmin });
+  }, [user, isAdmin]);
 
   // Helper function to check if a link is active
   const isActive = (href) => {
@@ -32,10 +40,6 @@ export default function Header() {
     if (href === "/categories") {
       // Active for both /categories and /categories/[slug]
       return pathname === "/categories" || pathname.startsWith("/categories/");
-    }
-    if (href === "/products") {
-      // Active for both /products and /products/[id]
-      return pathname === "/products" || pathname.startsWith("/products/");
     }
     return pathname.startsWith(href);
   };
@@ -55,18 +59,18 @@ export default function Header() {
   }, []);
 
   return (
-    <>
+    <div className="sticky top-0 z-50 bg-white">
       {/* Top Bar */}
       <div className="bg-gray-100 text-gray-600 text-xs sm:text-sm py-2 hidden sm:block">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-2">
               <PhoneOutlined />
-              <span>0968 736 913</span>
+              <span>0968 737 913</span>
             </div>
             <div className="flex items-center space-x-2">
               <MailOutlined />
-              <span>thomthom@gmail.com</span>
+              <span>mob@gmail.com</span>
             </div>
           </div>
           <div className="flex items-center space-x-4">
@@ -95,7 +99,7 @@ export default function Header() {
                       </LoadingLink>
                       <LoadingLink
                         href="/orders"
-                        className="block px-4 py-2 text-sm text-pink-600 hover:bg-pink-50 transition-colors"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                         loadingText="Đang chuyển đến đơn hàng..."
                         onClick={() => setIsUserMenuOpen(false)}
                       >
@@ -104,7 +108,7 @@ export default function Header() {
                       {isAdmin && (
                         <LoadingLink
                           href="/admin"
-                          className="block px-4 py-2 text-sm text-purple-600 hover:bg-purple-50 transition-colors"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                           loadingText="Đang chuyển đến admin..."
                           onClick={() => setIsUserMenuOpen(false)}
                         >
@@ -149,7 +153,7 @@ export default function Header() {
       </div>
 
       {/* Main Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
+      <header className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
@@ -171,14 +175,7 @@ export default function Header() {
 
             {/* Search Bar */}
             <div className="flex-1 max-w-md mx-4 sm:mx-8">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm sản phẩm..."
-                  className="w-full py-2 px-4 pr-10 border border-gray-300 rounded-full focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none"
-                />
-                <SearchOutlined className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              </div>
+              <SearchBar />
             </div>
 
             {/* Navigation */}
@@ -202,7 +199,7 @@ export default function Header() {
                 }`}
                 loadingText="Đang chuyển đến thể loại..."
               >
-                Thể loại
+                Danh mục
                 {isActive("/categories") && (
                   <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-pink-600"></span>
                 )}
@@ -278,6 +275,6 @@ export default function Header() {
           </div>
         </div>
       </header>
-    </>
+    </div>
   );
 }

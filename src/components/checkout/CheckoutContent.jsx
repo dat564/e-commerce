@@ -1,89 +1,191 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/store";
 import CheckoutForm from "./CheckoutForm";
 import CheckoutSummary from "./CheckoutSummary";
-import Footer from "@/components/Footer";
-import { showSuccess, showError } from "@/utils/notification";
+import { showSuccess, showError, showWarning } from "@/utils/notification";
+import { apiClient, ordersAPI } from "@/api";
 
 export default function CheckoutContent() {
   const { getSelectedItems, clearCart } = useCart();
   const { user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [buyNowItem, setBuyNowItem] = useState(null);
+  const [isLoadingProduct, setIsLoadingProduct] = useState(false);
 
   const selectedItems = getSelectedItems();
+  const productId = searchParams.get("product");
+  const quantity = parseInt(searchParams.get("quantity")) || 1;
 
-  // Redirect if no items selected or not logged in
+  // Fetch product data for buy now
+  useEffect(() => {
+    if (productId && !buyNowItem) {
+      setIsLoadingProduct(true);
+      const fetchProduct = async () => {
+        try {
+          const response = await apiClient.get(`/api/products/${productId}`);
+
+          // API có thể trả về { success: true, data: product } hoặc trực tiếp product
+          const product = response.data.success
+            ? response.data.data
+            : response.data;
+
+          if (product) {
+            setBuyNowItem({
+              id: product._id || product.id,
+              name: product.name,
+              price: product.price,
+              image: product.images?.[0] || product.image,
+              quantity: quantity,
+              selected: true,
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching product:", error);
+          showError("Lỗi", "Không thể tải thông tin sản phẩm");
+        } finally {
+          setIsLoadingProduct(false);
+        }
+      };
+      fetchProduct();
+    }
+  }, [productId, quantity, buyNowItem, router]);
+
+  // Redirect if not logged in
   useEffect(() => {
     if (!user) {
       showError("Vui lòng đăng nhập", "Bạn cần đăng nhập để thanh toán");
       router.push("/login");
       return;
     }
-    if (selectedItems.length === 0) {
-      showWarning(
-        "Giỏ hàng trống",
-        "Vui lòng chọn sản phẩm trong giỏ hàng trước khi thanh toán"
-      );
-      router.push("/cart");
-      return;
-    }
-  }, [user, selectedItems, router]);
+  }, [user, router]);
 
   const handlePlaceOrder = async (formData) => {
     setIsSubmitting(true);
 
     try {
-      // Mock order placement - in real app, this would call API
+      // Determine items to order (either from cart or buy now)
+      const itemsToOrder = buyNowItem ? [buyNowItem] : selectedItems;
+
+      // Calculate totals
+      const subtotal = itemsToOrder.reduce((sum, item) => {
+        return sum + item.price * item.quantity;
+      }, 0);
+      const shipping = subtotal > 0 ? 30000 : 0;
+      const total = subtotal + shipping;
+
+      // Prepare order data for API
       const orderData = {
-        id: `ORD${Date.now()}`,
-        customer: formData,
-        items: selectedItems,
-        status: "pending",
-        createdAt: new Date().toISOString(),
+        customer: {
+          fullName: formData.fullName,
+          phone: formData.phone,
+          email: formData.email,
+        },
+        shippingAddress: {
+          province: formData.province,
+          district: formData.district,
+          ward: formData.ward,
+          address: formData.address,
+        },
+        items: itemsToOrder.map((item) => ({
+          product: item.id,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        subtotal,
+        shippingFee: shipping,
+        total,
+        paymentMethod: formData.paymentMethod,
+        notes: formData.notes || "",
       };
 
-      console.log("Order placed:", orderData);
+      // Add userId to order data
+      orderData.userId = user?._id || user?.id;
 
-      // Clear selected items from cart
-      selectedItems.forEach((item) => {
-        // In real app, you'd remove only selected items
-        // For now, we'll clear the entire cart
-      });
-      clearCart();
+      // Check payment method
+      if (formData.paymentMethod === "cod") {
+        // COD - Create order directly without VNPay
+        orderData.paymentMethod = "cod";
+        orderData.paymentStatus = "pending";
+        orderData.status = "pending";
 
-      // Show success notification
-      showSuccess(
-        "Đặt hàng thành công!",
-        `Đơn hàng ${orderData.id} đã được tạo thành công`
-      );
+        const response = await ordersAPI.create(orderData);
 
-      // Redirect to success page or orders page
-      router.push("/orders");
+        // Clear cart only if not buy now
+        if (!buyNowItem) {
+          clearCart();
+        }
+
+        // Clear checkout session flag
+        sessionStorage.removeItem("checkout_visited");
+
+        showSuccess(
+          "Đặt hàng thành công!",
+          "Đơn hàng của bạn đã được tạo. Vui lòng thanh toán khi nhận hàng."
+        );
+
+        router.push("/orders");
+      } else {
+        // VNPay/QR Code - Create order and redirect to payment
+        const response = await apiClient.post("/api/create-qr-payment", {
+          orderData,
+        });
+
+        if (response.data.success) {
+          // Clear cart only if not buy now (do this before redirecting)
+          if (!buyNowItem) {
+            clearCart();
+          }
+
+          // Clear checkout session flag
+          sessionStorage.removeItem("checkout_visited");
+
+          // Open VNPay payment page in new tab
+          window.open(response.data.data.paymentUrl, "_blank");
+
+          // Redirect current tab to orders page
+          router.push("/orders");
+        } else {
+          throw new Error(response.data.message || "Không thể tạo thanh toán");
+        }
+      }
     } catch (error) {
-      console.error("Error placing order:", error);
+      console.error("Error creating payment:", error);
       showError(
-        "Lỗi đặt hàng",
-        "Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!"
+        "Lỗi thanh toán",
+        error.response?.data?.message ||
+          error.message ||
+          "Có lỗi xảy ra khi tạo thanh toán. Vui lòng thử lại!"
       );
-    } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleBackToCart = () => {
-    router.push("/cart");
+    if (buyNowItem) {
+      router.push(`/products/${productId}`);
+    } else {
+      router.push("/cart");
+    }
   };
 
-  if (!user || selectedItems.length === 0) {
-    return (
-      <div className="py-12">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="text-center">
+  return (
+    <div className="py-8">
+      <div className="container mx-auto px-4 max-w-6xl">
+        {isLoadingProduct ? (
+          // Loading state
+          <div className="flex justify-center items-center py-20">
+            <LoadingSpinner size="lg" text="Đang tải thông tin sản phẩm..." />
+          </div>
+        ) : !user || (selectedItems.length === 0 && !buyNowItem) ? (
+          // Empty state
+          <div className="text-center py-12">
             <div className="text-6xl mb-4">🛒</div>
             <h2 className="text-2xl font-bold text-gray-800 mb-4">
               Không có sản phẩm để thanh toán
@@ -98,38 +200,34 @@ export default function CheckoutContent() {
               Quay lại giỏ hàng
             </button>
           </div>
-        </div>
-        <Footer />
+        ) : (
+          // Main content
+          <>
+            <h1 className="text-3xl font-bold text-gray-800 mb-8">
+              Thanh toán đơn hàng
+            </h1>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Checkout Form */}
+              <div className="lg:col-span-2">
+                <CheckoutForm
+                  onSubmit={handlePlaceOrder}
+                  onBack={handleBackToCart}
+                  isSubmitting={isSubmitting}
+                  user={user}
+                />
+              </div>
+
+              {/* Order Summary */}
+              <div className="lg:col-span-1">
+                <CheckoutSummary
+                  items={buyNowItem ? [buyNowItem] : selectedItems}
+                />
+              </div>
+            </div>
+          </>
+        )}
       </div>
-    );
-  }
-
-  return (
-    <div className="py-8">
-      <div className="container mx-auto px-4 max-w-6xl">
-        {/* Page Title */}
-        <h1 className="text-3xl font-bold text-gray-800 mb-8">
-          Thanh toán đơn hàng
-        </h1>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Checkout Form */}
-          <div className="lg:col-span-2">
-            <CheckoutForm
-              onSubmit={handlePlaceOrder}
-              onBack={handleBackToCart}
-              isSubmitting={isSubmitting}
-              user={user}
-            />
-          </div>
-
-          {/* Order Summary */}
-          <div className="lg:col-span-1">
-            <CheckoutSummary items={selectedItems} />
-          </div>
-        </div>
-      </div>
-      <Footer />
     </div>
   );
 }

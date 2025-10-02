@@ -10,7 +10,7 @@ import PageTransition from "@/components/PageTransition";
 export default function Home() {
   return (
     <PageTransition>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-[600px] bg-white">
         {/* Hero Banner Section */}
         <HeroBanner />
 

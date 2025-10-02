@@ -74,7 +74,7 @@ export default function CartItem({ item }) {
           value={item.quantity}
           onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
           min="1"
-          className="w-12 text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none"
+          className="duration-200 w-12 text-center border border-gray-300 rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none"
         />
         <button
           onClick={() => handleQuantityChange(item.quantity + 1)}

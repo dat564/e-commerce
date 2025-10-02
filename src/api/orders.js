@@ -7,6 +7,11 @@ export const ordersAPI = {
     return response.data;
   },
 
+  getAllAdmin: async (params = {}) => {
+    const response = await apiClient.get("/api/admin/orders", { params });
+    return response.data;
+  },
+
   getById: async (id) => {
     const response = await apiClient.get(`/api/orders/${id}`);
     return response.data;

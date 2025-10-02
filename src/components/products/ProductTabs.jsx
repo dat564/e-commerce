@@ -14,54 +14,66 @@ export default function ProductTabs({ product }) {
           <p className="text-gray-700 leading-relaxed">{product.description}</p>
 
           {/* Specifications */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h4 className="font-semibold text-gray-800 mb-3">
-              Thông số kỹ thuật
-            </h4>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-gray-600">Trọng lượng:</span>
-                <span className="ml-2 font-medium">
-                  {product.specifications.weight}
-                </span>
-              </div>
-              <div>
-                <span className="text-gray-600">Thời gian đốt:</span>
-                <span className="ml-2 font-medium">
-                  {product.specifications.burnTime}
-                </span>
-              </div>
-              <div>
-                <span className="text-gray-600">Số bấc:</span>
-                <span className="ml-2 font-medium">
-                  {product.specifications.wicks}
-                </span>
-              </div>
-              <div>
-                <span className="text-gray-600">Hương thơm:</span>
-                <span className="ml-2 font-medium">
-                  {product.specifications.fragrance}
-                </span>
+          {product.specifications && (
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-gray-800 mb-3">
+                Thông số kỹ thuật
+              </h4>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                {product.specifications.weight && (
+                  <div>
+                    <span className="text-gray-600">Trọng lượng:</span>
+                    <span className="ml-2 font-medium">
+                      {product.specifications.weight}
+                    </span>
+                  </div>
+                )}
+                {product.specifications.burnTime && (
+                  <div>
+                    <span className="text-gray-600">Thời gian đốt:</span>
+                    <span className="ml-2 font-medium">
+                      {product.specifications.burnTime}
+                    </span>
+                  </div>
+                )}
+                {product.specifications.wicks && (
+                  <div>
+                    <span className="text-gray-600">Số bấc:</span>
+                    <span className="ml-2 font-medium">
+                      {product.specifications.wicks}
+                    </span>
+                  </div>
+                )}
+                {product.specifications.fragrance && (
+                  <div>
+                    <span className="text-gray-600">Hương thơm:</span>
+                    <span className="ml-2 font-medium">
+                      {product.specifications.fragrance}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
+          )}
 
           {/* Features */}
-          <div>
-            <h4 className="font-semibold text-gray-800 mb-3">
-              Tính năng nổi bật
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {product.features.map((feature, index) => (
-                <span
-                  key={index}
-                  className="bg-pink-100 text-pink-800 text-sm px-3 py-1 rounded-full"
-                >
-                  {feature}
-                </span>
-              ))}
+          {product.features && product.features.length > 0 && (
+            <div>
+              <h4 className="font-semibold text-gray-800 mb-3">
+                Tính năng nổi bật
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {product.features.map((feature, index) => (
+                  <span
+                    key={index}
+                    className="bg-pink-100 text-pink-800 text-sm px-3 py-1 rounded-full"
+                  >
+                    {feature}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       ),
     },

@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import ProductCard from "./ProductCard";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import ProductCard from "./ProductCard";
+import ProductFilters from "./ProductFilters";
+import { Pagination } from "@/components/ui";
 
 export default function ProductsSection({
   category = "",
@@ -14,6 +16,8 @@ export default function ProductsSection({
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentSort, setCurrentSort] = useState({ sortBy, sortOrder });
+  const [viewMode, setViewMode] = useState("grid");
   const [pagination, setPagination] = useState({
     page: 1,
     totalPages: 1,
@@ -29,8 +33,8 @@ export default function ProductsSection({
       const params = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString(),
-        sortBy,
-        sortOrder,
+        sortBy: currentSort.sortBy,
+        sortOrder: currentSort.sortOrder,
         status: "active",
       });
 
@@ -56,122 +60,90 @@ export default function ProductsSection({
 
   useEffect(() => {
     fetchProducts(1);
-  }, [category, search, sortBy, sortOrder, limit]);
+  }, [category, search, currentSort.sortBy, currentSort.sortOrder, limit]);
 
   const handlePageChange = (newPage) => {
     fetchProducts(newPage);
   };
 
-  if (loading) {
-    return (
-      <section className="py-12 sm:py-16">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="flex justify-center items-center py-20">
-            <LoadingSpinner size="lg" />
-          </div>
-        </div>
-      </section>
-    );
-  }
+  const handleSortChange = (newSortBy, newSortOrder) => {
+    setCurrentSort({ sortBy: newSortBy, sortOrder: newSortOrder });
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  };
 
-  if (error) {
-    return (
-      <section className="py-12 sm:py-16">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="text-center py-20">
-            <div className="text-red-500 text-lg mb-4">⚠️ {error}</div>
-            <button
-              onClick={() => fetchProducts(1)}
-              className="bg-pink-600 text-white px-6 py-2 rounded-lg hover:bg-pink-700 transition-colors"
-            >
-              Thử lại
-            </button>
-          </div>
-        </div>
-      </section>
-    );
-  }
+  const handleViewChange = (newViewMode) => {
+    setViewMode(newViewMode);
+  };
 
   return (
-    <section className="py-12 sm:py-16">
-      <div className="container mx-auto px-4 max-w-6xl">
-        {/* Products Grid */}
-        {products.length > 0 ? (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-              {products.map((product) => (
-                <ProductCard key={product._id} product={product} />
-              ))}
+    <div className="bg-gray-50">
+      {/* Filters */}
+      <ProductFilters
+        onSortChange={handleSortChange}
+        onViewChange={handleViewChange}
+        currentSort={currentSort.sortBy}
+        currentView={viewMode}
+        totalProducts={pagination.total}
+        currentPage={pagination.page}
+        limit={limit}
+      />
+
+      <section className="py-8">
+        <div className="container mx-auto px-4 max-w-6xl">
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <LoadingSpinner size="lg" text="Đang tải sản phẩm..." />
             </div>
-
-            {/* Pagination */}
-            {pagination.totalPages > 1 && (
-              <div className="mt-12 flex justify-center">
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => handlePageChange(pagination.page - 1)}
-                    disabled={!pagination.hasPrev}
-                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 transition-colors"
-                  >
-                    Trước
-                  </button>
-
-                  <div className="flex items-center space-x-1">
-                    {Array.from(
-                      { length: Math.min(5, pagination.totalPages) },
-                      (_, i) => {
-                        let pageNum;
-                        if (pagination.totalPages <= 5) {
-                          pageNum = i + 1;
-                        } else if (pagination.page <= 3) {
-                          pageNum = i + 1;
-                        } else if (
-                          pagination.page >=
-                          pagination.totalPages - 2
-                        ) {
-                          pageNum = pagination.totalPages - 4 + i;
-                        } else {
-                          pageNum = pagination.page - 2 + i;
-                        }
-
-                        return (
-                          <button
-                            key={pageNum}
-                            onClick={() => handlePageChange(pageNum)}
-                            className={`px-3 py-2 rounded-lg transition-colors ${
-                              pageNum === pagination.page
-                                ? "bg-pink-600 text-white"
-                                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                            }`}
-                          >
-                            {pageNum}
-                          </button>
-                        );
-                      }
-                    )}
-                  </div>
-
-                  <button
-                    onClick={() => handlePageChange(pagination.page + 1)}
-                    disabled={!pagination.hasNext}
-                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 transition-colors"
-                  >
-                    Sau
-                  </button>
-                </div>
+          ) : error ? (
+            <div className="text-center py-20">
+              <div className="text-red-500 text-lg mb-4">⚠️ {error}</div>
+              <button
+                onClick={() => fetchProducts(1)}
+                className="bg-pink-600 text-white px-6 py-2 rounded-lg hover:bg-pink-700 transition-colors"
+              >
+                Thử lại
+              </button>
+            </div>
+          ) : products.length > 0 ? (
+            <>
+              {/* Products Grid */}
+              <div
+                className={`grid gap-6 lg:gap-8 ${
+                  viewMode === "grid"
+                    ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                    : "grid-cols-1"
+                }`}
+              >
+                {products.map((product) => (
+                  <ProductCard
+                    key={product._id}
+                    product={product}
+                    viewMode={viewMode}
+                  />
+                ))}
               </div>
-            )}
-          </>
-        ) : (
-          <div className="text-center py-20">
-            <div className="text-gray-500 text-lg">
-              {search
-                ? `Không tìm thấy sản phẩm nào cho "${search}"`
-                : "Chưa có sản phẩm nào"}
+
+              {/* Pagination */}
+              <div className="mt-12">
+                <Pagination
+                  currentPage={pagination.page}
+                  totalPages={pagination.totalPages}
+                  onPageChange={handlePageChange}
+                  className="mt-8"
+                />
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-20">
+              <div className="text-gray-500 text-lg">
+                {search
+                  ? `Không tìm thấy sản phẩm nào cho "${search}"`
+                  : "Chưa có sản phẩm nào"}
+              </div>
             </div>
-          </div>
-        )}
-      </div>
-    </section>
+          )}
+        </div>
+      </section>
+    </div>
   );
 }

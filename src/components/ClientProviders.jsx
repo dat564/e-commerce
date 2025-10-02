@@ -4,7 +4,7 @@ import { LoadingProvider } from "@/contexts/LoadingContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { CustomRecoilRoot } from "@/store";
 import { NotificationProvider } from "@/contexts/NotificationContext";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import GlobalLoadingSpinner from "@/components/GlobalLoadingSpinner";
 
 export default function ClientProviders({ children }) {
   return (
@@ -13,7 +13,7 @@ export default function ClientProviders({ children }) {
         <CartProvider>
           <NotificationProvider>
             {children}
-            <LoadingSpinner />
+            <GlobalLoadingSpinner />
           </NotificationProvider>
         </CartProvider>
       </CustomRecoilRoot>

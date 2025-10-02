@@ -10,7 +10,7 @@ export default function Custom404() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50">
+    <div className="min-h-[600px] flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50">
       <div className="text-center p-8 max-w-md mx-auto">
         {/* 404 Icon */}
         <div className="mb-8">
@@ -52,7 +52,7 @@ export default function Custom404() {
           <p className="text-sm text-gray-500 mb-3">Hoặc bạn có thể:</p>
           <div className="flex justify-center space-x-4 text-sm">
             <Link
-              href="/products"
+              href="/categories"
               className="text-pink-600 hover:text-pink-700 transition-colors"
             >
               Xem sản phẩm

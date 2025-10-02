@@ -46,7 +46,7 @@ export default function OrderFilters({ filters, onFilterChange }) {
             value={filters.search}
             onChange={(e) => handleInputChange("search", e.target.value)}
             placeholder="Nhập mã đơn hoặc tên sản phẩm..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none"
+            className="duration-200 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none"
           />
         </div>
 
@@ -57,7 +57,7 @@ export default function OrderFilters({ filters, onFilterChange }) {
           </label>
           <button
             onClick={() => setIsStatusOpen(!isStatusOpen)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none flex items-center justify-between"
+            className="duration-200 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none flex items-center justify-between"
           >
             <span>{getStatusLabel()}</span>
             <svg
@@ -106,7 +106,7 @@ export default function OrderFilters({ filters, onFilterChange }) {
             type="date"
             value={filters.dateFrom}
             onChange={(e) => handleInputChange("dateFrom", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none"
+            className="duration-200 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none"
           />
         </div>
 
@@ -119,7 +119,7 @@ export default function OrderFilters({ filters, onFilterChange }) {
             type="date"
             value={filters.dateTo}
             onChange={(e) => handleInputChange("dateTo", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none"
+            className="duration-200 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none"
           />
         </div>
       </div>

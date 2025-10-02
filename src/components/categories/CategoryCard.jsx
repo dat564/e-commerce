@@ -30,11 +30,12 @@ export default function CategoryCard({ category }) {
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 flex flex-col items-center justify-center">
-            <div className="text-6xl mb-2">🕯️</div>
-            <span className="text-gray-500 text-sm font-medium">M.O.B</span>
+            <div className="text-4xl mb-2">📦</div>
+            <span className="text-gray-500 text-sm font-medium">
+              {category.name}
+            </span>
           </div>
         )}
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300"></div>
       </div>
 
       {/* Content */}

@@ -15,6 +15,7 @@ export async function GET(request) {
     const search = searchParams.get("search") || "";
     const category = searchParams.get("category") || "";
     const status = searchParams.get("status") || "";
+    const exclude = searchParams.get("exclude") || "";
     const sortBy = searchParams.get("sortBy") || "createdAt";
     const sortOrder = searchParams.get("sortOrder") || "desc";
 
@@ -34,6 +35,10 @@ export async function GET(request) {
 
     if (status) {
       query.status = status;
+    }
+
+    if (exclude) {
+      query._id = { $ne: exclude };
     }
 
     // Build sort
@@ -59,10 +64,26 @@ export async function GET(request) {
     const hasNext = page < totalPages;
     const hasPrev = page > 1;
 
+    // Transform products data
+    const transformedProducts = products.map((product) => ({
+      id: product._id,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      category: product.category,
+      image: product.image,
+      images: product.images,
+      features: product.features,
+      stock: product.stock,
+      status: product.status,
+      createdAt: product.createdAt,
+      updatedAt: product.updatedAt,
+    }));
+
     return NextResponse.json({
       success: true,
       data: {
-        products,
+        products: transformedProducts,
         pagination: {
           page,
           limit,

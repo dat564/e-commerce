@@ -19,6 +19,7 @@ export const useAuthActions = () => {
   const router = useRouter();
 
   const login = (userData, accessToken, refreshToken) => {
+    console.log("🔐 Login action called with user:", userData);
     setUser(userData);
     setAccessToken(accessToken);
     setRefreshToken(refreshToken);
@@ -26,9 +27,16 @@ export const useAuthActions = () => {
 
     // Save to localStorage
     if (typeof window !== "undefined") {
-      localStorage.setItem("user", JSON.stringify(userData));
+      // Add timestamp to user data
+      const userDataWithTimestamp = {
+        ...userData,
+        _lastUpdated: Date.now(),
+      };
+
+      localStorage.setItem("user", JSON.stringify(userDataWithTimestamp));
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
+      console.log("💾 User data saved to localStorage with timestamp");
     }
   };
 

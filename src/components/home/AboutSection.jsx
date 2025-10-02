@@ -4,28 +4,27 @@ import Image from "next/image";
 
 export default function AboutSection() {
   return (
-    <section className="py-12 sm:py-16 bg-white">
+    <section className="py-12 sm:py-16 bg-white ">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-center">
           {/* Left Content */}
           <div className="text-center lg:text-left">
             <h2 className="text-4xl sm:text-6xl lg:text-8xl font-bold text-gray-300 mb-4">
-              THƠM THƠM
+              M.O.B
             </h2>
             <h3 className="text-xl sm:text-2xl text-pink-600 mb-6 sm:mb-8">
               Về chúng tôi
             </h3>
             <div className="text-gray-700 leading-relaxed space-y-3 sm:space-y-4 text-sm sm:text-base">
+              <p>M.O.B – Mỹ phẩm cho mọi người, đẹp theo cách của bạn</p>
               <p>
-                THƠM THƠM là thương hiệu trẻ, hiện đại chuyên cung cấp các sản
-                phẩm nước hoa cơ thể và nến thơm Bath & Body Works chính hãng.
-                Với đa dạng các mùi hương tươi mới, phù hợp với phong cách sống
-                năng động của giới trẻ.
-              </p>
-              <p>
-                Chúng tôi lấy cảm hứng từ những khoảnh khắc thư giãn trong cuộc
-                sống hàng ngày, từ việc lựa chọn kỹ lưỡng từng mùi hương đến
-                việc chăm sóc khách hàng tận tình.
+                M.O.B là trang web chuyên cung cấp các dòng mỹ phẩm chất lượng
+                với mức giá trung bình – bình dân, phù hợp với túi tiền của
+                nhiều đối tượng khách hàng. Tại đây, bạn có thể dễ dàng tìm thấy
+                những sản phẩm chăm sóc da, trang điểm và làm đẹp đến từ các
+                thương hiệu uy tín, vừa đảm bảo an toàn vừa mang lại hiệu quả.
+                Với M.O.B, việc chăm sóc sắc đẹp trở nên đơn giản, tiết kiệm
+                nhưng vẫn trọn vẹn và tinh tế.
               </p>
               <p>
                 Cam kết mang đến sự hài lòng tối đa cho khách hàng thông qua

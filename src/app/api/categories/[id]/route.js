@@ -27,6 +27,12 @@ export async function GET(request, { params }) {
       );
     }
 
+    // Count products in this category
+    const productCount = await Product.countDocuments({
+      category: category._id,
+      status: "active",
+    });
+
     return NextResponse.json({
       success: true,
       data: {
@@ -35,7 +41,7 @@ export async function GET(request, { params }) {
         description: category.description,
         image: category.image,
         status: category.status,
-        productCount: category.productCount,
+        productCount,
         createdAt: category.createdAt,
         updatedAt: category.updatedAt,
       },
@@ -100,6 +106,12 @@ export async function PUT(request, { params }) {
       runValidators: true,
     });
 
+    // Count products in this category
+    const productCount = await Product.countDocuments({
+      category: updatedCategory._id,
+      status: "active",
+    });
+
     return NextResponse.json({
       success: true,
       message: "Cập nhật danh mục thành công",
@@ -109,7 +121,7 @@ export async function PUT(request, { params }) {
         description: updatedCategory.description,
         image: updatedCategory.image,
         status: updatedCategory.status,
-        productCount: updatedCategory.productCount,
+        productCount,
         createdAt: updatedCategory.createdAt,
         updatedAt: updatedCategory.updatedAt,
       },

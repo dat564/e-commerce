@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Category from "@/models/Category";
+import Product from "@/models/Product";
 import { getErrorMessage } from "@/utils/errorHandler";
 
 // GET /api/categories - Lấy danh sách danh mục
@@ -12,6 +13,7 @@ export async function GET(request) {
     const page = parseInt(searchParams.get("page")) || 1;
     const limit = parseInt(searchParams.get("limit")) || 10;
     const search = searchParams.get("search") || "";
+    const slug = searchParams.get("slug") || "";
     const status = searchParams.get("status") || "";
     const sortBy = searchParams.get("sortBy") || "createdAt";
     const sortOrder = searchParams.get("sortOrder") || "desc";
@@ -19,10 +21,14 @@ export async function GET(request) {
     // Build query
     let query = {};
 
-    if (search) {
+    // Nếu có slug parameter, tìm kiếm chính xác theo slug
+    if (slug) {
+      query.slug = slug;
+    } else if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } },
         { description: { $regex: search, $options: "i" } },
+        { slug: { $regex: search, $options: "i" } },
       ];
     }
 
@@ -44,6 +50,20 @@ export async function GET(request) {
       .limit(limit)
       .lean();
 
+    // Count products for each category
+    const categoriesWithCount = await Promise.all(
+      categories.map(async (category) => {
+        const productCount = await Product.countDocuments({
+          category: category._id,
+          status: "active",
+        });
+        return {
+          ...category,
+          productCount,
+        };
+      })
+    );
+
     // Get total count
     const total = await Category.countDocuments(query);
 
@@ -55,7 +75,7 @@ export async function GET(request) {
     return NextResponse.json({
       success: true,
       data: {
-        categories,
+        categories: categoriesWithCount,
         pagination: {
           page,
           limit,

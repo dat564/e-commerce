@@ -189,8 +189,9 @@ export default function ProductManagement() {
       };
 
       let response;
+      console.log("editingProduct", editingProduct);
       if (editingProduct) {
-        response = await productsAPI.update(editingProduct._id, productData);
+        response = await productsAPI.update(editingProduct.id, productData);
       } else {
         response = await productsAPI.create(productData);
       }

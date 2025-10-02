@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Order from "@/models/Order";
+import Product from "@/models/Product";
 import authMiddleware from "@/middleware/auth";
 
 export async function GET(request, { params }) {
@@ -51,7 +52,7 @@ export async function GET(request, { params }) {
 export async function PUT(request, { params }) {
   try {
     const { id } = params;
-    const { orderStatus, paymentStatus, trackingNumber, cancelReason } =
+    const { status, paymentStatus, trackingNumber, cancelReason } =
       await request.json();
 
     await connectDB();
@@ -81,25 +82,54 @@ export async function PUT(request, { params }) {
 
     // Cập nhật trạng thái đơn hàng
     const updateData = {};
-    if (orderStatus) updateData.orderStatus = orderStatus;
+    if (status) updateData.status = status;
     if (paymentStatus) updateData.paymentStatus = paymentStatus;
     if (trackingNumber) updateData.trackingNumber = trackingNumber;
     if (cancelReason) updateData.cancelReason = cancelReason;
 
     // Xử lý hủy đơn hàng
-    if (orderStatus === "cancelled") {
+    if (status === "cancelled") {
       updateData.cancelledAt = new Date();
 
-      // Hoàn trả hàng vào kho
+      // Hoàn trả hàng vào kho (chỉ nếu đã giảm số lượng trước đó)
+      if (
+        order.status === "confirmed" ||
+        order.status === "processing" ||
+        order.status === "shipped"
+      ) {
+        for (const item of order.items) {
+          await Product.findByIdAndUpdate(item.product, {
+            $inc: { stock: item.quantity },
+          });
+        }
+      }
+    }
+
+    // Xử lý xác nhận đơn hàng - GIẢM SỐ LƯỢNG TỒN KHO
+    if (status === "confirmed" && order.status === "pending") {
+      // Giảm số lượng tồn kho khi xác nhận đơn hàng
       for (const item of order.items) {
         await Product.findByIdAndUpdate(item.product, {
-          $inc: { stock: item.quantity },
+          $inc: { stock: -item.quantity },
         });
       }
     }
 
+    // Xử lý thanh toán thành công - GIẢM SỐ LƯỢNG TỒN KHO (nếu chưa giảm)
+    if (paymentStatus === "paid" && order.paymentStatus !== "paid") {
+      // Chỉ giảm số lượng nếu đơn hàng chưa được confirmed
+      if (order.status === "pending") {
+        for (const item of order.items) {
+          await Product.findByIdAndUpdate(item.product, {
+            $inc: { stock: -item.quantity },
+          });
+        }
+      }
+      updateData.paidAt = new Date();
+    }
+
     // Xử lý giao hàng thành công
-    if (orderStatus === "delivered") {
+    if (status === "delivered") {
       updateData.deliveredAt = new Date();
     }
 

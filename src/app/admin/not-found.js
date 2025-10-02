@@ -10,7 +10,7 @@ export default function AdminNotFoundPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
+    <div className="min-h-[600px] flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
       <div className="text-center p-8 max-w-md mx-auto">
         {/* 404 Icon */}
         <div className="mb-8">

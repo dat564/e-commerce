@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PaymentMethod from "./PaymentMethod";
 
 export default function CheckoutForm({ onSubmit, onBack, isSubmitting, user }) {
@@ -11,12 +11,115 @@ export default function CheckoutForm({ onSubmit, onBack, isSubmitting, user }) {
     district: "",
     ward: "",
     address: "",
-    email: user?.email || "",
+    email: "",
     notes: "",
   });
 
   const [paymentMethod, setPaymentMethod] = useState("qr_code");
   const [errors, setErrors] = useState({});
+
+  // Address data from API
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [wards, setWards] = useState([]);
+  const [loadingProvinces, setLoadingProvinces] = useState(true);
+  const [loadingDistricts, setLoadingDistricts] = useState(false);
+  const [loadingWards, setLoadingWards] = useState(false);
+
+  // Fetch provinces on component mount
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      try {
+        setLoadingProvinces(true);
+        const response = await fetch("https://provinces.open-api.vn/api/p/");
+        const data = await response.json();
+        setProvinces(data);
+      } catch (error) {
+        console.error("Error fetching provinces:", error);
+      } finally {
+        setLoadingProvinces(false);
+      }
+    };
+
+    fetchProvinces();
+  }, []);
+
+  // Fetch districts when province changes
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      if (!formData.province) {
+        setDistricts([]);
+        setWards([]);
+        return;
+      }
+
+      try {
+        setLoadingDistricts(true);
+        const response = await fetch(
+          `https://provinces.open-api.vn/api/p/${formData.province}?depth=2`
+        );
+        const data = await response.json();
+        setDistricts(data.districts || []);
+        setWards([]);
+        // Reset district and ward when province changes
+        setFormData((prev) => ({
+          ...prev,
+          district: "",
+          ward: "",
+        }));
+      } catch (error) {
+        console.error("Error fetching districts:", error);
+        setDistricts([]);
+      } finally {
+        setLoadingDistricts(false);
+      }
+    };
+
+    fetchDistricts();
+  }, [formData.province]);
+
+  // Fetch wards when district changes
+  useEffect(() => {
+    const fetchWards = async () => {
+      if (!formData.district) {
+        setWards([]);
+        return;
+      }
+
+      try {
+        setLoadingWards(true);
+        const response = await fetch(
+          `https://provinces.open-api.vn/api/d/${formData.district}?depth=2`
+        );
+        const data = await response.json();
+        setWards(data.wards || []);
+        // Reset ward when district changes
+        setFormData((prev) => ({
+          ...prev,
+          ward: "",
+        }));
+      } catch (error) {
+        console.error("Error fetching wards:", error);
+        setWards([]);
+      } finally {
+        setLoadingWards(false);
+      }
+    };
+
+    fetchWards();
+  }, [formData.district]);
+
+  // Fill user data when component mounts or user changes
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        fullName: user.fullName || user.name || "",
+        phone: user.phone || "",
+        email: user.email || "",
+      }));
+    }
+  }, [user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -77,8 +180,22 @@ export default function CheckoutForm({ onSubmit, onBack, isSubmitting, user }) {
     e.preventDefault();
 
     if (validateForm()) {
+      // Get names instead of codes
+      const selectedProvince = provinces.find(
+        (p) => p.code === parseInt(formData.province)
+      );
+      const selectedDistrict = districts.find(
+        (d) => d.code === parseInt(formData.district)
+      );
+      const selectedWard = wards.find(
+        (w) => w.code === parseInt(formData.ward)
+      );
+
       onSubmit({
         ...formData,
+        province: selectedProvince?.name || formData.province,
+        district: selectedDistrict?.name || formData.district,
+        ward: selectedWard?.name || formData.ward,
         paymentMethod,
       });
     }
@@ -103,7 +220,7 @@ export default function CheckoutForm({ onSubmit, onBack, isSubmitting, user }) {
               name="fullName"
               value={formData.fullName}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none ${
+              className={`duration-200 w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none ${
                 errors.fullName ? "border-red-500" : "border-gray-300"
               }`}
               placeholder="Nhập họ và tên"
@@ -123,7 +240,7 @@ export default function CheckoutForm({ onSubmit, onBack, isSubmitting, user }) {
               name="phone"
               value={formData.phone}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none ${
+              className={`duration-200 w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none ${
                 errors.phone ? "border-red-500" : "border-gray-300"
               }`}
               placeholder="Nhập số điện thoại"
@@ -143,15 +260,19 @@ export default function CheckoutForm({ onSubmit, onBack, isSubmitting, user }) {
                 name="province"
                 value={formData.province}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none appearance-none ${
+                disabled={loadingProvinces}
+                className={`duration-200 w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none appearance-none ${
                   errors.province ? "border-red-500" : "border-gray-300"
-                }`}
+                } ${loadingProvinces ? "bg-gray-100" : ""}`}
               >
-                <option value="">Chọn tỉnh/thành phố</option>
-                <option value="hanoi">Hà Nội</option>
-                <option value="hcm">TP. Hồ Chí Minh</option>
-                <option value="danang">Đà Nẵng</option>
-                <option value="haiphong">Hải Phòng</option>
+                <option value="">
+                  {loadingProvinces ? "Đang tải..." : "Chọn tỉnh/thành phố"}
+                </option>
+                {provinces.map((province) => (
+                  <option key={province.code} value={province.code}>
+                    {province.name}
+                  </option>
+                ))}
               </select>
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                 <svg
@@ -184,15 +305,21 @@ export default function CheckoutForm({ onSubmit, onBack, isSubmitting, user }) {
                 name="district"
                 value={formData.district}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none appearance-none ${
+                disabled={!formData.province || loadingDistricts}
+                className={`duration-200 w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none appearance-none ${
                   errors.district ? "border-red-500" : "border-gray-300"
+                } ${
+                  !formData.province || loadingDistricts ? "bg-gray-100" : ""
                 }`}
               >
-                <option value="">Chọn quận/huyện</option>
-                <option value="cau-giay">Cầu Giấy</option>
-                <option value="dong-da">Đống Đa</option>
-                <option value="hai-ba-trung">Hai Bà Trưng</option>
-                <option value="hoan-kiem">Hoàn Kiếm</option>
+                <option value="">
+                  {loadingDistricts ? "Đang tải..." : "Chọn quận/huyện"}
+                </option>
+                {districts.map((district) => (
+                  <option key={district.code} value={district.code}>
+                    {district.name}
+                  </option>
+                ))}
               </select>
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                 <svg
@@ -225,15 +352,19 @@ export default function CheckoutForm({ onSubmit, onBack, isSubmitting, user }) {
                 name="ward"
                 value={formData.ward}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none appearance-none ${
+                disabled={!formData.district || loadingWards}
+                className={`duration-200 w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none appearance-none ${
                   errors.ward ? "border-red-500" : "border-gray-300"
-                }`}
+                } ${!formData.district || loadingWards ? "bg-gray-100" : ""}`}
               >
-                <option value="">Chọn phường/xã</option>
-                <option value="dich-vong">Dịch Vọng</option>
-                <option value="dich-vong-hau">Dịch Vọng Hậu</option>
-                <option value="mai-dich">Mai Dịch</option>
-                <option value="nghia-tan">Nghĩa Tân</option>
+                <option value="">
+                  {loadingWards ? "Đang tải..." : "Chọn phường/xã"}
+                </option>
+                {wards.map((ward) => (
+                  <option key={ward.code} value={ward.code}>
+                    {ward.name}
+                  </option>
+                ))}
               </select>
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                 <svg
@@ -266,7 +397,7 @@ export default function CheckoutForm({ onSubmit, onBack, isSubmitting, user }) {
               name="address"
               value={formData.address}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none ${
+              className={`duration-200 w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none ${
                 errors.address ? "border-red-500" : "border-gray-300"
               }`}
               placeholder="Số nhà, tên đường..."
@@ -286,7 +417,7 @@ export default function CheckoutForm({ onSubmit, onBack, isSubmitting, user }) {
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none ${
+              className={`duration-200 w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none ${
                 errors.email ? "border-red-500" : "border-gray-300"
               }`}
               placeholder="Nhập email"
@@ -306,7 +437,7 @@ export default function CheckoutForm({ onSubmit, onBack, isSubmitting, user }) {
               value={formData.notes}
               onChange={handleInputChange}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none"
+              className="duration-200 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none"
               placeholder="Ghi chú cho đơn hàng"
             />
           </div>

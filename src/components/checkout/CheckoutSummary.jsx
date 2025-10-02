@@ -1,14 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useCart } from "@/contexts/CartContext";
 
 export default function CheckoutSummary({ items }) {
-  const { getSubtotal, getTotal } = useCart();
+  // Calculate subtotal from items (not from cart)
+  const subtotal = items.reduce((sum, item) => {
+    const price = Number(item.price) || 0;
+    const quantity = Number(item.quantity) || 0;
+    return sum + price * quantity;
+  }, 0);
 
-  const subtotal = getSubtotal();
   const shipping = subtotal > 0 ? 30000 : 0;
-  const total = getTotal();
+  const total = subtotal + shipping;
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN", {

@@ -15,7 +15,6 @@ import {
   uploadMultipleToCloudinaryParallel,
   validateFile,
 } from "@/utils/cloudinaryUpload";
-import { getCloudinaryUrl } from "@/utils/cloudinaryClient";
 import { showSuccess, showError } from "@/utils/notification";
 
 const { Text } = Typography;

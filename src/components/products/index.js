@@ -3,5 +3,7 @@ export { default as ProductCard } from "./ProductCard";
 export { default as ProductImageGallery } from "./ProductImageGallery";
 export { default as ProductInfo } from "./ProductInfo";
 export { default as ProductTabs } from "./ProductTabs";
+export { default as ProductFilters } from "./ProductFilters";
+export { default as ProductsSection } from "./ProductsSection";
 export { default as RelatedProducts } from "./RelatedProducts";
 export { default as AIAssistant } from "./AIAssistant";

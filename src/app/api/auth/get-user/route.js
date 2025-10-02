@@ -39,9 +39,8 @@ export async function GET(request) {
         user: {
           _id: user._id,
           email: user.email,
-          fullName: user.fullName,
-          firstName: user.firstName,
-          lastName: user.lastName,
+          name: user.name,
+          fullName: user.name, // Alias for compatibility
           role: user.role,
           avatar: user.avatar,
           phone: user.phone,

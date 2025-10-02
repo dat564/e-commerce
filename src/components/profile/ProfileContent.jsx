@@ -154,7 +154,7 @@ export default function ProfileContent() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-[600px] flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-700 mb-4">
             Vui lòng đăng nhập để xem thông tin tài khoản
@@ -171,7 +171,7 @@ export default function ProfileContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-[600px] bg-gray-50 py-8">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -320,7 +320,7 @@ export default function ProfileContent() {
                       value={formData.name}
                       onChange={handleInputChange}
                       disabled={isLoading}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none disabled:bg-gray-50 disabled:cursor-not-allowed"
+                      className="duration-200 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none disabled:bg-gray-50 disabled:cursor-not-allowed"
                       placeholder="Nhập họ và tên"
                     />
                   </div>
@@ -335,7 +335,7 @@ export default function ProfileContent() {
                       value={formData.phone}
                       onChange={handleInputChange}
                       disabled={isLoading}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none disabled:bg-gray-50 disabled:cursor-not-allowed"
+                      className="duration-200 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none disabled:bg-gray-50 disabled:cursor-not-allowed"
                       placeholder="Nhập số điện thoại"
                     />
                   </div>
@@ -396,7 +396,7 @@ export default function ProfileContent() {
                       value={passwordData.currentPassword}
                       onChange={handlePasswordChange}
                       disabled={isLoading}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none disabled:bg-gray-50 disabled:cursor-not-allowed"
+                      className="duration-200 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none disabled:bg-gray-50 disabled:cursor-not-allowed"
                       placeholder="Nhập mật khẩu hiện tại"
                       required
                     />
@@ -412,7 +412,7 @@ export default function ProfileContent() {
                       value={passwordData.newPassword}
                       onChange={handlePasswordChange}
                       disabled={isLoading}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none disabled:bg-gray-50 disabled:cursor-not-allowed"
+                      className="duration-200 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none disabled:bg-gray-50 disabled:cursor-not-allowed"
                       placeholder="Nhập mật khẩu mới"
                       required
                     />
@@ -428,7 +428,7 @@ export default function ProfileContent() {
                       value={passwordData.confirmPassword}
                       onChange={handlePasswordChange}
                       disabled={isLoading}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none disabled:bg-gray-50 disabled:cursor-not-allowed"
+                      className="duration-200 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none disabled:bg-gray-50 disabled:cursor-not-allowed"
                       placeholder="Nhập lại mật khẩu mới"
                       required
                     />

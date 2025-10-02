@@ -1,4 +1,8 @@
 import mongoose from "mongoose";
+import {
+  ORDER_STATUS_VALUES,
+  PAYMENT_STATUS_VALUES,
+} from "@/constants/orderStatus";
 
 const orderSchema = new mongoose.Schema(
   {
@@ -9,8 +13,6 @@ const orderSchema = new mongoose.Schema(
     },
     orderNumber: {
       type: String,
-      unique: true,
-      required: true,
     },
     items: [
       {
@@ -31,60 +33,35 @@ const orderSchema = new mongoose.Schema(
         },
       },
     ],
+    customer: {
+      fullName: String,
+      phone: String,
+      email: String,
+    },
     shippingAddress: {
-      name: {
-        type: String,
-        required: true,
-        trim: true,
-      },
-      phone: {
-        type: String,
-        required: true,
-        trim: true,
-      },
-      address: {
-        type: String,
-        required: true,
-        trim: true,
-      },
-      city: {
-        type: String,
-        required: true,
-        trim: true,
-      },
-      district: {
-        type: String,
-        required: true,
-        trim: true,
-      },
-      ward: {
-        type: String,
-        required: true,
-        trim: true,
-      },
+      province: String,
+      district: String,
+      ward: String,
+      address: String,
     },
     paymentMethod: {
       type: String,
-      enum: ["cod", "bank_transfer", "credit_card"],
-      required: true,
+      enum: ["cod", "bank_transfer", "credit_card", "vnpay", "qr_code"],
+      default: "cod",
     },
     paymentStatus: {
       type: String,
-      enum: ["pending", "paid", "failed", "refunded"],
+      enum: PAYMENT_STATUS_VALUES,
       default: "pending",
     },
-    orderStatus: {
+    status: {
       type: String,
-      enum: [
-        "pending",
-        "confirmed",
-        "processing",
-        "shipped",
-        "delivered",
-        "cancelled",
-      ],
+      enum: ORDER_STATUS_VALUES,
       default: "pending",
     },
+    vnpayTransactionId: String,
+    paymentExpiry: Date,
+    paidAt: Date,
     subtotal: {
       type: Number,
       required: true,
@@ -110,10 +87,7 @@ const orderSchema = new mongoose.Schema(
       trim: true,
       maxLength: 500,
     },
-    trackingNumber: {
-      type: String,
-      trim: true,
-    },
+    trackingNumber: String,
     deliveredAt: Date,
     cancelledAt: Date,
     cancelReason: String,
@@ -123,7 +97,7 @@ const orderSchema = new mongoose.Schema(
   }
 );
 
-// Tạo order number tự động
+// Auto generate order number
 orderSchema.pre("save", function (next) {
   if (!this.orderNumber) {
     const timestamp = Date.now().toString();
@@ -133,10 +107,10 @@ orderSchema.pre("save", function (next) {
   next();
 });
 
-// Index cho tìm kiếm
+// Indexes for search
 orderSchema.index({ user: 1, createdAt: -1 });
-orderSchema.index({ orderNumber: 1 });
-orderSchema.index({ orderStatus: 1 });
+orderSchema.index({ orderNumber: 1 }, { unique: true, sparse: true });
+orderSchema.index({ status: 1 });
 orderSchema.index({ paymentStatus: 1 });
 
 export default mongoose.models.Order || mongoose.model("Order", orderSchema);

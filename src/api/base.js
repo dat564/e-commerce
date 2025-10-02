@@ -1,7 +1,8 @@
 import axios from "axios";
 
 // API utility functions with authentication
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_APP_URL || "";
 
 // Helper function to handle logout
 const handleLogout = () => {

@@ -10,7 +10,7 @@ export const metadata = {
 export default function CategoriesPage() {
   return (
     <PageTransition>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-[600px] bg-gray-50">
         {/* Breadcrumb */}
         <div className="bg-gray-100 py-3">
           <div className="container mx-auto px-4 max-w-6xl">

@@ -4,133 +4,53 @@ import ProductInfo from "@/components/products/ProductInfo";
 import ProductTabs from "@/components/products/ProductTabs";
 import RelatedProducts from "@/components/products/RelatedProducts";
 import AIAssistant from "@/components/products/AIAssistant";
-import LoginPrompt from "@/components/products/LoginPrompt";
 import PageTransition from "@/components/PageTransition";
 import LoadingLink from "@/components/LoadingLink";
+import { serverAPI } from "@/api/server";
 
-// Mock data - in real app, this would come from API/database
-const products = {
-  1: {
-    id: 1,
-    name: "Nến Thơm Bath & Body Works White Tea & Sage 3-Wick Candle",
-    price: 499000,
-    originalPrice: 599000,
-    images: [
-      "/assets/images/products/white-tea-sage-1.jpg",
-      "/assets/images/products/white-tea-sage-2.jpg",
-      "/assets/images/products/white-tea-sage-3.jpg",
-    ],
-    category: "Nến Thơm",
-    categorySlug: "nen-thom",
-    stock: 100,
-    inStock: true,
-    description:
-      "Nến Thơm Bath & Body Works White Tea & Sage 3-Wick Candle 441g (1)",
-    features: [
-      "Màu Năng",
-      "Trà trắng",
-      "Cây xô thơm",
-      "Cam bergamot",
-      "Thời gian đốt 40 tiếng",
-    ],
-    specifications: {
-      weight: "441g",
-      burnTime: "40 tiếng",
-      wicks: "3 bấc",
-      fragrance: "White Tea & Sage",
-    },
-    returnPolicy:
-      "Đổi trả nếu không đúng hình ảnh hoặc không đáp ứng yêu cầu trong vòng 72 giờ kể từ khi nhận hàng",
-  },
-  2: {
-    id: 2,
-    name: "Nến thơm thư giãn Bath & Body Works Aromatherapy",
-    price: 499000,
-    originalPrice: 599000,
-    images: [
-      "/assets/images/products/stress-relief-1.jpg",
-      "/assets/images/products/stress-relief-2.jpg",
-    ],
-    category: "Nến Thơm",
-    categorySlug: "nen-thom",
-    stock: 50,
-    inStock: true,
-    description: "Nến thơm giúp thư giãn và giảm stress",
-    features: [
-      "Màu Năng",
-      "Tình dầu bạc hà",
-      "Xạ hương",
-      "Thời gian đốt 45 tiếng",
-    ],
-    specifications: {
-      weight: "411g",
-      burnTime: "45 tiếng",
-      wicks: "3 bấc",
-      fragrance: "Stress Relief",
-    },
-    returnPolicy:
-      "Đổi trả nếu không đúng hình ảnh hoặc không đáp ứng yêu cầu trong vòng 72 giờ kể từ khi nhận hàng",
-  },
-};
+// Function to fetch product data from API
+async function getProduct(id) {
+  try {
+    const response = await serverAPI.products.getById(id);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    return null;
+  }
+}
 
-const relatedProducts = [
-  {
-    id: 2,
-    name: "Nến thơm thư giãn Bath & Body Works Aromatherapy",
-    price: 499000,
-    image: "/assets/images/products/stress-relief.jpg",
-    description: "Nến thơm giúp thư giãn và giảm stress",
-    features: [
-      "Màu Năng",
-      "Tình dầu bạc hà",
-      "Xạ hương",
-      "Thời gian đốt 45 tiếng",
-    ],
-    category: "Nến Thơm",
-  },
-  {
-    id: 3,
-    name: "Nến Thơm Bath & Body Works Peppermint Bark 3-Wick",
-    price: 499000,
-    image: "/assets/images/products/peppermint-bark.jpg",
-    description: "Nến thơm với hương bạc hà và socola",
-    features: ["Màu Năng", "Socola trắng tan chảy", "Thời gian đốt 45 tiếng"],
-    category: "Nến Thơm",
-  },
-  {
-    id: 4,
-    name: "Nến thơm Bath & Body Works WHITE GARDENIA 3 bấc",
-    price: 499000,
-    image: "/assets/images/products/white-gardenia.jpg",
-    description: "Nến thơm với hương hoa dành dành",
-    features: [
-      "Màu Năng",
-      "Nước táo ngọt",
-      "Cây dành dành",
-      "Hoa huệ trắng",
-      "Thời gian đốt 40 tiếng",
-    ],
-    category: "Nến Thơm",
-  },
-  {
-    id: 5,
-    name: "Nến thơm Bath & Body Works FALL APPLE CIDER",
-    price: 499000,
-    image: "/assets/images/products/fall-apple-cider.jpg",
-    description: "Nến thơm với hương táo mùa thu",
-    features: ["Màu Năng", "Táo là giảm", "Thời gian đốt 40 tiếng"],
-    category: "Nến Thơm",
-  },
-];
+// Function to fetch related products from API
+async function getRelatedProducts(categoryId, currentProductId) {
+  try {
+    const response = await serverAPI.products.getAll({
+      category: categoryId,
+      limit: 4,
+      exclude: currentProductId,
+    });
+    return response.data?.products || [];
+  } catch (error) {
+    console.error("Error fetching related products:", error);
+    return [];
+  }
+}
 
 export async function generateStaticParams() {
-  return Object.keys(products).map((id) => ({
-    id: id,
-  }));
+  try {
+    // Fetch all products to generate static params
+    const response = await serverAPI.products.getAll({ limit: 100 });
+    const products = response.data?.products || [];
+
+    return products.map((product) => ({
+      id: product.id,
+    }));
+  } catch (error) {
+    console.error("Error generating static params:", error);
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }) {
-  const product = products[params.id];
+  const product = await getProduct(params.id);
 
   if (!product) {
     return {
@@ -144,16 +64,22 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default function ProductDetailPage({ params }) {
-  const product = products[params.id];
+export default async function ProductDetailPage({ params }) {
+  const product = await getProduct(params.id);
 
   if (!product) {
     notFound();
   }
 
+  // Fetch related products
+  const relatedProducts = await getRelatedProducts(
+    product.category?.id || product.category,
+    product.id
+  );
+
   return (
     <PageTransition>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-[600px] bg-white">
         {/* Breadcrumb */}
         <div className="bg-gray-100 py-3">
           <div className="container mx-auto px-4 max-w-6xl">
@@ -163,25 +89,26 @@ export default function ProductDetailPage({ params }) {
                 className="hover:text-pink-600 cursor-pointer"
                 loadingText="Đang chuyển về trang chủ..."
               >
-                Home
+                Trang chủ
               </LoadingLink>
               <span className="mx-2">/</span>
               <LoadingLink
-                href="/products"
-                className="hover:text-pink-600 cursor-pointer"
-                loadingText="Đang chuyển đến sản phẩm..."
-              >
-                Sản phẩm của M.O.B
-              </LoadingLink>
-              <span className="mx-2">/</span>
-              <LoadingLink
-                href={`/categories/${product.category
-                  .toLowerCase()
-                  .replace(/\s+/g, "-")}`}
+                href="/categories"
                 className="hover:text-pink-600 cursor-pointer"
                 loadingText="Đang chuyển đến danh mục..."
               >
-                {product.category}
+                Danh mục sản phẩm
+              </LoadingLink>
+              <span className="mx-2">/</span>
+              <LoadingLink
+                href={`/categories/${
+                  product.category?.slug ||
+                  product.category?.name?.toLowerCase().replace(/\s+/g, "-")
+                }`}
+                className="hover:text-pink-600 cursor-pointer"
+                loadingText="Đang chuyển đến danh mục..."
+              >
+                {product.category?.name || product.category}
               </LoadingLink>
               <span className="mx-2">/</span>
               <span className="text-gray-800 line-clamp-1">{product.name}</span>
@@ -192,9 +119,6 @@ export default function ProductDetailPage({ params }) {
         {/* Main Product Content */}
         <div className="py-8">
           <div className="container mx-auto px-4 max-w-6xl">
-            {/* Login Prompt */}
-            <LoginPrompt />
-
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
               {/* Product Images */}
               <ProductImageGallery product={product} />
@@ -209,7 +133,9 @@ export default function ProductDetailPage({ params }) {
         <ProductTabs product={product} />
 
         {/* Related Products */}
-        <RelatedProducts products={relatedProducts} />
+        {relatedProducts && relatedProducts.length > 0 && (
+          <RelatedProducts products={relatedProducts} />
+        )}
 
         {/* AI Assistant */}
         <AIAssistant product={product} />

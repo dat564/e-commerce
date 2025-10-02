@@ -4,15 +4,9 @@ export default function PaymentMethod({ selectedMethod, onMethodChange }) {
   const paymentMethods = [
     {
       id: "qr_code",
-      name: "Thanh toán qua QR code",
-      description: "Quét mã QR để thanh toán",
-      icon: "📱",
-    },
-    {
-      id: "bank_transfer",
-      name: "Chuyển khoản ngân hàng",
-      description: "Chuyển khoản trực tiếp",
-      icon: "🏦",
+      name: "Thanh toán qua VNPAY",
+      description: "Thanh toán bằng VNPAY",
+      icon: "💳",
     },
     {
       id: "cod",

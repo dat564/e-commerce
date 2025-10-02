@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import LoadingLink from "@/components/LoadingLink";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/store";
@@ -10,6 +11,7 @@ export default function ProductInfo({ product }) {
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
   const { user } = useAuth();
+  const router = useRouter();
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -25,15 +27,9 @@ export default function ProductInfo({ product }) {
     }
   };
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = () => {
     try {
-      const success = await addToCart(product, quantity);
-      if (success) {
-        showSuccess(
-          "Thêm vào giỏ hàng thành công!",
-          `Đã thêm ${quantity} sản phẩm "${product.name}" vào giỏ hàng`
-        );
-      }
+      addToCart(product, quantity);
     } catch (error) {
       showError("Lỗi", "Không thể thêm sản phẩm vào giỏ hàng");
     }
@@ -41,11 +37,18 @@ export default function ProductInfo({ product }) {
 
   const handleBuyNow = () => {
     if (!user) {
-      showError("Vui lòng đăng nhập", "Bạn cần đăng nhập để mua hàng");
+      // Lưu URL hiện tại vào query params để quay lại sau khi đăng nhập
+      const currentUrl = encodeURIComponent(
+        window.location.pathname + window.location.search
+      );
+
+      // Chuyển đến trang login với redirect URL
+      router.push(`/login?redirect=${currentUrl}`);
       return;
     }
-    // TODO: Implement buy now functionality
-    console.log(`Buying ${quantity} of product ${product.id} now`);
+
+    // Redirect to checkout page with product data
+    router.push(`/checkout?product=${product.id}&quantity=${quantity}`);
   };
 
   return (
@@ -82,11 +85,16 @@ export default function ProductInfo({ product }) {
       <div className="flex items-center space-x-2">
         <span className="text-gray-600">Thể loại:</span>
         <LoadingLink
-          href={`/categories/${product.categorySlug}`}
+          href={`/categories/${
+            product.category?.slug ||
+            product.category?.name?.toLowerCase().replace(/\s+/g, "-")
+          }`}
           className="text-pink-600 hover:text-pink-700 font-medium"
-          loadingText={`Đang chuyển đến thể loại ${product.category}...`}
+          loadingText={`Đang chuyển đến thể loại ${
+            product.category?.name || product.category
+          }...`}
         >
-          {product.category}
+          {product.category?.name || product.category}
         </LoadingLink>
       </div>
 
@@ -123,25 +131,15 @@ export default function ProductInfo({ product }) {
       <div className="flex space-x-4">
         <button
           onClick={handleAddToCart}
-          className={`flex-1 font-semibold py-3 px-6 rounded-lg transition-colors duration-200 ${
-            user
-              ? "bg-gray-500 hover:bg-gray-600 text-white"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
-          disabled={!user}
+          className="flex-1 font-semibold py-3 px-6 rounded-lg transition-colors duration-200 bg-gray-500 hover:bg-gray-600 text-white"
         >
-          {user ? "Thêm vào giỏ hàng" : "Đăng nhập để thêm vào giỏ hàng"}
+          Thêm vào giỏ hàng
         </button>
         <button
           onClick={handleBuyNow}
-          className={`flex-1 font-semibold py-3 px-6 rounded-lg transition-colors duration-200 ${
-            user
-              ? "bg-pink-500 hover:bg-pink-600 text-white"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
-          disabled={!user}
+          className="flex-1 font-semibold py-3 px-6 rounded-lg transition-colors duration-200 bg-pink-500 hover:bg-pink-600 text-white"
         >
-          {user ? "Mua ngay" : "Đăng nhập để mua"}
+          Mua ngay
         </button>
       </div>
 
@@ -160,7 +158,10 @@ export default function ProductInfo({ product }) {
       {/* Return Policy */}
       <div className="bg-gray-50 p-4 rounded-lg">
         <h3 className="font-semibold text-gray-800 mb-2">CHÍNH SÁCH ĐỔI TRẢ</h3>
-        <p className="text-gray-600 text-sm">{product.returnPolicy}</p>
+        <p className="text-gray-600 text-sm">
+          {product.returnPolicy ||
+            "Đổi trả nếu không đúng hình ảnh hoặc không đáp ứng yêu cầu trong vòng 72 giờ kể từ khi nhận hàng"}
+        </p>
       </div>
     </div>
   );

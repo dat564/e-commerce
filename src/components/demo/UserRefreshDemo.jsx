@@ -12,7 +12,7 @@ export default function UserRefreshDemo() {
   const handleRefreshUser = async () => {
     setIsRefreshing(true);
     try {
-      const success = await getUser();
+      const success = await getUser(true); // Show loading spinner
       if (success) {
         setLastRefresh(new Date().toLocaleTimeString());
       }

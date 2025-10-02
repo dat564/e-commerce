@@ -1,51 +1,63 @@
 import jwt from "jsonwebtoken";
+import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
-export default async function authMiddleware(req, res, next) {
+export default async function authMiddleware(request) {
   try {
-    const token = req.headers.authorization?.replace("Bearer ", "");
+    const token = request.headers.get("authorization")?.replace("Bearer ", "");
 
     if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: "Không có token xác thực",
-      });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Không có token xác thực",
+        },
+        { status: 401 }
+      );
     }
 
     const decoded = jwt.verify(token, JWT_SECRET);
 
     await connectDB();
-    const user = await User.findById(decoded.userId).select("-password");
+    const user = await User.findById(decoded.userId).select("-password").lean();
 
     if (!user || !user.isActive) {
-      return res.status(401).json({
-        success: false,
-        message: "Token không hợp lệ hoặc tài khoản đã bị vô hiệu hóa",
-      });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Token không hợp lệ hoặc tài khoản đã bị vô hiệu hóa",
+        },
+        { status: 401 }
+      );
     }
 
-    req.user = user;
-    next();
+    return user;
   } catch (error) {
     console.error("Auth middleware error:", error);
-    return res.status(401).json({
-      success: false,
-      message: "Token không hợp lệ",
-    });
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Token không hợp lệ",
+      },
+      { status: 401 }
+    );
   }
 }
 
-export function adminMiddleware(req, res, next) {
-  if (req.user.role !== "admin") {
-    return res.status(403).json({
-      success: false,
-      message: "Không có quyền truy cập",
-    });
+export async function adminMiddleware(request, user) {
+  if (user.role !== "admin") {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Không có quyền truy cập",
+      },
+      { status: 403 }
+    );
   }
-  next();
+  return null;
 }
 
 export function verifyToken(token) {
