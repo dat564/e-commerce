@@ -49,7 +49,7 @@ export default function ProductsSection() {
             Sản phẩm nổi bật
           </h3>
           <p className="text-gray-600 text-base sm:text-lg">
-            Các dòng sản phẩm nổi bật THƠM THƠM
+            Các dòng sản phẩm nổi bật M.O.B
           </p>
         </div>
 
