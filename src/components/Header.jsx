@@ -205,40 +205,18 @@ export default function Header() {
                 )}
               </LoadingLink>
               <LoadingLink
-                href="/about"
-                className={`transition-colors relative text-sm lg:text-base text-gray-700 hover:text-pink-600 ${
-                  isActive("/about") ? "text-pink-600" : ""
-                }`}
+                href="/"
+                className={`transition-colors relative text-sm lg:text-base text-gray-700 hover:text-pink-600`}
                 loadingText="Đang chuyển đến trang giới thiệu..."
               >
                 Về chúng tôi
-                {isActive("/about") && (
-                  <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-pink-600"></span>
-                )}
               </LoadingLink>
               <LoadingLink
-                href="/blog"
-                className={`transition-colors relative text-sm lg:text-base text-gray-700 hover:text-pink-600 ${
-                  isActive("/blog") ? "text-pink-600" : ""
-                }`}
-                loadingText="Đang chuyển đến blog..."
-              >
-                Blog
-                {isActive("/blog") && (
-                  <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-pink-600"></span>
-                )}
-              </LoadingLink>
-              <LoadingLink
-                href="/contact"
-                className={`transition-colors relative text-sm lg:text-base text-gray-700 hover:text-pink-600 ${
-                  isActive("/contact") ? "text-pink-600" : ""
-                }`}
+                href="/"
+                className={`transition-colors relative text-sm lg:text-base text-gray-700 hover:text-pink-600`}
                 loadingText="Đang chuyển đến trang liên hệ..."
               >
                 Liên hệ
-                {isActive("/contact") && (
-                  <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-pink-600"></span>
-                )}
               </LoadingLink>
 
               {/* Cart Icon */}

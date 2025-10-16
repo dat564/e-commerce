@@ -36,44 +36,18 @@ export default function AboutSection() {
             </button>
           </div>
 
-          {/* Right Content - Product Images */}
+          {/* Right Content - Single Image */}
           <div className="flex justify-center lg:justify-end">
-            <div className="flex gap-2 h-[400px]">
-              {/* Gingham Blue */}
-              <div className="group cursor-pointer h-full">
-                <Image
-                  src="/assets/images/home/ours-1.jpg"
-                  alt="Gingham Body Mist"
-                  width={170}
-                  height={400}
-                  className="object-cover w-full h-full transition-all duration-300 group-hover:-translate-y-2"
-                  quality={100}
-                />
-              </div>
-
-              {/* Gingham Gorgeous Pink */}
-              <div className="group cursor-pointer h-full">
-                <Image
-                  src="/assets/images/home/ours-2.jpg"
-                  alt="Gingham Gorgeous Body Mist"
-                  width={170}
-                  height={400}
-                  className="object-cover w-full h-full transition-all duration-300 group-hover:-translate-y-2"
-                  quality={90}
-                />
-              </div>
-
-              {/* Gingham Love Red */}
-              <div className="group cursor-pointer h-full">
-                <Image
-                  src="/assets/images/home/ours-3.jpg"
-                  alt="Gingham Love Body Mist"
-                  width={170}
-                  height={400}
-                  className="object-cover w-full h-full transition-all duration-300 group-hover:-translate-y-2"
-                  quality={90}
-                />
-              </div>
+            <div className="group cursor-pointer w-full h-full">
+              <Image
+                src="/assets/images/home/ours-1.jpg"
+                alt="M.O.B Products"
+                width={300}
+                height={400}
+                className="object-cover w-full h-full  rounded-lg "
+                quality={100}
+                unoptimized
+              />
             </div>
           </div>
         </div>
