@@ -59,6 +59,29 @@ export async function GET(request) {
     // Đếm tổng số đơn hàng
     const total = await Order.countDocuments(query);
 
+    // Get statistics (only when not searching to get overall stats)
+    let statistics = null;
+    if (!search && !status && !paymentStatus) {
+      const totalOrders = await Order.countDocuments();
+      const pendingOrders = await Order.countDocuments({
+        $or: [{ status: "pending" }, { status: "confirmed" }],
+      });
+      const deliveredOrders = await Order.countDocuments({
+        status: "delivered",
+      });
+      const totalRevenue = await Order.aggregate([
+        { $match: { status: "delivered" } },
+        { $group: { _id: null, total: { $sum: "$total" } } },
+      ]);
+
+      statistics = {
+        total: totalOrders,
+        pendingOrders,
+        deliveredOrders,
+        totalRevenue: totalRevenue.length > 0 ? totalRevenue[0].total : 0,
+      };
+    }
+
     return NextResponse.json({
       success: true,
       data: {
@@ -69,6 +92,7 @@ export async function GET(request) {
           total,
           totalPages: Math.ceil(total / limit),
         },
+        statistics,
       },
     });
   } catch (error) {

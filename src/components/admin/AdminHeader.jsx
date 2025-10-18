@@ -21,8 +21,12 @@ export default function AdminHeader() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center space-x-4">
-            <div className="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-lg">🌸</span>
+            <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
+              <img
+                src="/assets/images/home/logo.png"
+                alt="M.O.B Logo"
+                className="w-full h-full object-cover"
+              />
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-800">M.O.B Admin</h1>

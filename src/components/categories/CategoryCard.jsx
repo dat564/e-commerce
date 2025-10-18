@@ -6,12 +6,10 @@ import LoadingLink from "@/components/LoadingLink";
 
 export default function CategoryCard({ category }) {
   // Tạo slug từ name nếu không có slug
-  const slug =
-    category.slug ||
-    category.name
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "");
+  const slug = category.name
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
 
   return (
     <LoadingLink

@@ -67,6 +67,22 @@ export async function GET(request) {
     // Get total count
     const total = await Category.countDocuments(query);
 
+    // Get statistics (only when not searching to get overall stats)
+    let statistics = null;
+    if (!search && !status && !slug) {
+      const totalCategories = await Category.countDocuments();
+      const activeCategories = await Category.countDocuments({
+        status: "active",
+      });
+      const totalProducts = await Product.countDocuments({ status: "active" });
+
+      statistics = {
+        total: totalCategories,
+        activeCategories,
+        totalProducts,
+      };
+    }
+
     // Calculate pagination info
     const totalPages = Math.ceil(total / limit);
     const hasNext = page < totalPages;
@@ -84,6 +100,7 @@ export async function GET(request) {
           hasNext,
           hasPrev,
         },
+        statistics,
       },
     });
   } catch (error) {

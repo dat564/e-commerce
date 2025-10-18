@@ -54,6 +54,20 @@ export async function GET(request) {
     // Get total count
     const total = await User.countDocuments(query);
 
+    // Get statistics (only when not searching to get overall stats)
+    let statistics = null;
+    if (!search && !role && !status) {
+      const totalUsers = await User.countDocuments();
+      const activeUsers = await User.countDocuments({ isActive: true });
+      const adminUsers = await User.countDocuments({ role: "admin" });
+
+      statistics = {
+        total: totalUsers,
+        activeUsers,
+        adminUsers,
+      };
+    }
+
     // Calculate pagination info
     const totalPages = Math.ceil(total / limit);
     const hasNext = page < totalPages;
@@ -71,6 +85,7 @@ export async function GET(request) {
           hasNext,
           hasPrev,
         },
+        statistics,
       },
     });
   } catch (error) {

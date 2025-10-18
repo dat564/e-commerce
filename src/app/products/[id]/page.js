@@ -101,10 +101,10 @@ export default async function ProductDetailPage({ params }) {
               </LoadingLink>
               <span className="mx-2">/</span>
               <LoadingLink
-                href={`/categories/${
-                  product.category?.slug ||
-                  product.category?.name?.toLowerCase().replace(/\s+/g, "-")
-                }`}
+                href={`/categories/${product.category?.name
+                  .toLowerCase()
+                  .replace(/\s+/g, "-")
+                  .replace(/[^a-z0-9-]/g, "")}`}
                 className="hover:text-pink-600 cursor-pointer"
                 loadingText="Đang chuyển đến danh mục..."
               >

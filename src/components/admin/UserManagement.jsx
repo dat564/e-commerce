@@ -49,7 +49,34 @@ export default function UserManagement() {
     pageSize: 10,
     total: 0,
   });
+  const [statistics, setStatistics] = useState({
+    totalUsers: 0,
+    activeUsers: 0,
+    adminUsers: 0,
+  });
   const hasLoadedRef = useRef(false);
+
+  // Load statistics from API
+  const loadStatistics = async () => {
+    try {
+      const response = await usersAPI.getAll({
+        page: 1,
+        limit: 1, // Chỉ cần lấy 1 record để lấy tổng số
+      });
+
+      if (response.success) {
+        const { total, activeUsers, adminUsers } =
+          response.data.statistics || {};
+        setStatistics({
+          totalUsers: total || 0,
+          activeUsers: activeUsers || 0,
+          adminUsers: adminUsers || 0,
+        });
+      }
+    } catch (error) {
+      console.error("Load statistics error:", error);
+    }
+  };
 
   // Load users from API
   const loadUsers = async (page = 1, search = "") => {
@@ -89,11 +116,12 @@ export default function UserManagement() {
     }
   };
 
-  // Load users on component mount
+  // Load users and statistics on component mount
   useEffect(() => {
     if (!hasLoadedRef.current) {
       hasLoadedRef.current = true;
       loadUsers();
+      loadStatistics();
     }
   }, []);
 
@@ -125,6 +153,7 @@ export default function UserManagement() {
           description: "Người dùng đã được xóa khỏi hệ thống",
         });
         loadUsers(pagination.current, searchTerm);
+        loadStatistics();
       } else {
         api.error({
           message: "Lỗi khi xóa người dùng",
@@ -181,6 +210,7 @@ export default function UserManagement() {
         setIsModalOpen(false);
         form.resetFields();
         loadUsers(pagination.current, searchTerm);
+        loadStatistics();
       } else {
         api.error({
           message: response.message || "Không thể thực hiện thao tác",
@@ -337,9 +367,8 @@ export default function UserManagement() {
     },
   ];
 
-  const totalUsers = users.length;
-  const activeUsers = users.filter((user) => user.isActive).length;
-  const adminUsers = users.filter((user) => user.role === "admin").length;
+  // Sử dụng statistics từ state thay vì tính từ users array
+  const { totalUsers, activeUsers, adminUsers } = statistics;
 
   return (
     <div className="p-6">

@@ -57,6 +57,11 @@ export default function ProductManagement() {
     pageSize: 10,
     total: 0,
   });
+  const [statistics, setStatistics] = useState({
+    totalProducts: 0,
+    activeProducts: 0,
+    totalValue: 0,
+  });
 
   // Load products from API
   const loadProducts = async (page = 1, search = "") => {
@@ -76,6 +81,15 @@ export default function ProductManagement() {
           current: response.data.pagination.page,
           total: response.data.pagination.total,
         }));
+
+        // Update statistics if available
+        if (response.data.statistics) {
+          setStatistics({
+            totalProducts: response.data.statistics.total || 0,
+            activeProducts: response.data.statistics.activeProducts || 0,
+            totalValue: response.data.statistics.totalValue || 0,
+          });
+        }
       } else {
         showError(
           "Lỗi khi tải danh sách sản phẩm",
@@ -392,14 +406,8 @@ export default function ProductManagement() {
     },
   ];
 
-  const totalProducts = products.length;
-  const activeProducts = products.filter(
-    (product) => product.status === "active"
-  ).length;
-  const totalValue = products.reduce(
-    (sum, product) => sum + product.price * product.stock,
-    0
-  );
+  // Sử dụng statistics từ state thay vì tính từ products array
+  const { totalProducts, activeProducts, totalValue } = statistics;
 
   return (
     <div className="p-6">

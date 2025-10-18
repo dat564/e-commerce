@@ -85,6 +85,7 @@ export default function SearchBar() {
     if (searchTerm.trim()) {
       router.push(`/products?search=${encodeURIComponent(searchTerm.trim())}`);
       setShowResults(false);
+      setSearchTerm(""); // Xóa keywords sau khi submit
     }
   };
 
@@ -211,7 +212,18 @@ export default function SearchBar() {
               {searchResults.length >= 5 && (
                 <div className="p-3 border-t border-gray-200">
                   <button
-                    onClick={() => handleSearchSubmit(new Event("submit"))}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (searchTerm.trim()) {
+                        router.push(
+                          `/products?search=${encodeURIComponent(
+                            searchTerm.trim()
+                          )}`
+                        );
+                        setShowResults(false);
+                        setSearchTerm(""); // Xóa keywords sau khi submit
+                      }
+                    }}
                     className="w-full text-center text-sm text-pink-600 hover:text-pink-700 font-medium"
                   >
                     Xem tất cả kết quả cho "{searchTerm}"

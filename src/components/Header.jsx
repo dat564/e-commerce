@@ -162,8 +162,12 @@ export default function Header() {
               className="flex items-center space-x-3"
               loadingText="Đang chuyển về trang chủ..."
             >
-              <div className="w-12 h-12 bg-pink-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-xl">🌸</span>
+              <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center">
+                <img
+                  src="/assets/images/home/logo.png"
+                  alt="M.O.B Logo"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="flex flex-col">
                 <span className="text-2xl font-bold text-pink-600 font-serif">
@@ -204,7 +208,7 @@ export default function Header() {
                   <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-pink-600"></span>
                 )}
               </LoadingLink>
-              <LoadingLink
+              {/* <LoadingLink
                 href="/"
                 className={`transition-colors relative text-sm lg:text-base text-gray-700 hover:text-pink-600`}
                 loadingText="Đang chuyển đến trang giới thiệu..."
@@ -217,7 +221,7 @@ export default function Header() {
                 loadingText="Đang chuyển đến trang liên hệ..."
               >
                 Liên hệ
-              </LoadingLink>
+              </LoadingLink> */}
 
               {/* Cart Icon */}
               <LoadingLink

@@ -54,6 +54,12 @@ export default function OrderManagement() {
     pageSize: 10,
     total: 0,
   });
+  const [statistics, setStatistics] = useState({
+    totalOrders: 0,
+    pendingOrders: 0,
+    deliveredOrders: 0,
+    totalRevenue: 0,
+  });
 
   // Load orders from API
   const loadOrders = async (page = 1, search = "", status = "all") => {
@@ -78,6 +84,16 @@ export default function OrderManagement() {
           current: response.data.data.pagination.page,
           total: response.data.data.pagination.total,
         }));
+
+        // Update statistics if available
+        if (response.data.data.statistics) {
+          setStatistics({
+            totalOrders: response.data.data.statistics.total || 0,
+            pendingOrders: response.data.data.statistics.pendingOrders || 0,
+            deliveredOrders: response.data.data.statistics.deliveredOrders || 0,
+            totalRevenue: response.data.data.statistics.totalRevenue || 0,
+          });
+        }
       } else {
         showError(
           "Lỗi khi tải danh sách đơn hàng",
@@ -305,20 +321,9 @@ export default function OrderManagement() {
     },
   ];
 
-  // Tính toán statistics
-  const totalOrders = pagination.total || 0;
-  const totalRevenue = orders.reduce(
-    (sum, order) => sum + (order.total || 0),
-    0
-  );
-  const pendingOrders = orders.filter(
-    (order) =>
-      order.status === ORDER_STATUS.PENDING ||
-      order.status === ORDER_STATUS.CONFIRMED
-  ).length;
-  const deliveredOrders = orders.filter(
-    (order) => order.status === ORDER_STATUS.DELIVERED
-  ).length;
+  // Sử dụng statistics từ state thay vì tính từ orders array
+  const { totalOrders, pendingOrders, deliveredOrders, totalRevenue } =
+    statistics;
 
   return (
     <div className="h-full flex flex-col">

@@ -142,8 +142,12 @@ export default function RegisterForm() {
       <div className="relative z-10 bg-white bg-opacity-95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-pink-500 rounded-full mb-4">
-            <span className="text-white text-2xl font-bold">🌸</span>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 overflow-hidden">
+            <img
+              src="/assets/images/home/logo.png"
+              alt="M.O.B Logo"
+              className="w-full h-full object-cover"
+            />
           </div>
           <h2 className="text-lg font-semibold text-pink-600">
             Đăng ký tài khoản mới

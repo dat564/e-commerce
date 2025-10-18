@@ -21,7 +21,7 @@ export default function HeroBanner() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % banners.length);
-    }, 5000);
+    }, 10000);
     return () => clearInterval(timer);
   }, []);
 
@@ -38,7 +38,7 @@ export default function HeroBanner() {
   };
 
   return (
-    <section className="relative h-[60vh] sm:h-[70vh] min-h-[400px] sm:min-h-[600px] overflow-hidden">
+    <section className="relative h-[920px] overflow-hidden">
       {/* Main carousel container */}
       <div className="relative w-full h-full">
         {banners.map((banner, index) => (

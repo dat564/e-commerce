@@ -51,6 +51,11 @@ export default function CategoryManagement() {
     pageSize: 10,
     total: 0,
   });
+  const [statistics, setStatistics] = useState({
+    totalCategories: 0,
+    activeCategories: 0,
+    totalProducts: 0,
+  });
 
   // Load categories from API
   const loadCategories = async (page = 1, search = "") => {
@@ -69,6 +74,15 @@ export default function CategoryManagement() {
           current: response.data.pagination.page,
           total: response.data.pagination.total,
         }));
+
+        // Update statistics if available
+        if (response.data.statistics) {
+          setStatistics({
+            totalCategories: response.data.statistics.total || 0,
+            activeCategories: response.data.statistics.activeCategories || 0,
+            totalProducts: response.data.statistics.totalProducts || 0,
+          });
+        }
       } else {
         showError(
           "Lỗi khi tải danh sách danh mục",
@@ -316,14 +330,8 @@ export default function CategoryManagement() {
     },
   ];
 
-  const totalCategories = categories.length;
-  const activeCategories = categories.filter(
-    (category) => category.status === "active"
-  ).length;
-  const totalProducts = categories.reduce(
-    (sum, category) => sum + category.productCount,
-    0
-  );
+  // Sử dụng statistics từ state thay vì tính từ categories array
+  const { totalCategories, activeCategories, totalProducts } = statistics;
 
   return (
     <div className="p-6">

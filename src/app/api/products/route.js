@@ -59,6 +59,28 @@ export async function GET(request) {
     // Get total count
     const total = await Product.countDocuments(query);
 
+    // Get statistics (only when not searching to get overall stats)
+    let statistics = null;
+    if (!search && !category && !status) {
+      const totalProducts = await Product.countDocuments();
+      const activeProducts = await Product.countDocuments({ status: "active" });
+      const totalValue = await Product.aggregate([
+        { $match: { status: "active" } },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: { $multiply: ["$price", "$stock"] } },
+          },
+        },
+      ]);
+
+      statistics = {
+        total: totalProducts,
+        activeProducts,
+        totalValue: totalValue.length > 0 ? totalValue[0].total : 0,
+      };
+    }
+
     // Calculate pagination info
     const totalPages = Math.ceil(total / limit);
     const hasNext = page < totalPages;
@@ -92,6 +114,7 @@ export async function GET(request) {
           hasNext,
           hasPrev,
         },
+        statistics,
       },
     });
   } catch (error) {
