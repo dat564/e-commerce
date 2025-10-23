@@ -202,12 +202,13 @@ export default function LoginForm() {
 
           {/* Action Links */}
           <div className="flex items-center justify-between text-sm">
-            <a
-              href="#"
+            <LoadingLink
+              href="/forgot-password"
               className="text-pink-600 hover:text-pink-700 transition-colors"
+              loadingText="Đang chuyển đến trang quên mật khẩu..."
             >
               Quên mật khẩu?
-            </a>
+            </LoadingLink>
             <span className="text-gray-300">|</span>
             <LoadingLink
               href={`/register${

@@ -8,7 +8,7 @@ export default function Footer() {
   return (
     <>
       {/* Main Footer */}
-      <footer className="bg-gray-50 py-12">
+      <footer id="footer" className="bg-gray-50 py-12">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* About M.O.B */}
@@ -84,7 +84,7 @@ export default function Footer() {
               </h3>
               <div className="space-y-2 text-sm text-gray-600">
                 <p>Khu CNC Hoà Lạc, Thạch Thất, Hà Nội</p>
-                <p>0968 737 913</p>
+                <p>0968 737 917</p>
                 <p>mob@gmail.com</p>
                 <p>8:00 - 17:00, Thứ 2 - Thứ 7</p>
               </div>

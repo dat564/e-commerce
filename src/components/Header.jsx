@@ -16,6 +16,7 @@ import LoadingLink from "@/components/LoadingLink";
 import SearchBar from "@/components/SearchBar";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/store";
+import { useScrollToSection } from "@/hooks/useScrollToSection";
 
 export default function Header() {
   const { getTotalItems } = useCart();
@@ -26,6 +27,9 @@ export default function Header() {
 
   // Get user data from Recoil state
   const { user, isAdmin, logout } = useAuth();
+
+  // Scroll functionality
+  const { scrollToSection, scrollToFooter } = useScrollToSection();
 
   // Debug logging
   useEffect(() => {
@@ -66,7 +70,7 @@ export default function Header() {
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-2">
               <PhoneOutlined />
-              <span>0968 737 913</span>
+              <span>0968 737 917</span>
             </div>
             <div className="flex items-center space-x-2">
               <MailOutlined />
@@ -208,20 +212,18 @@ export default function Header() {
                   <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-pink-600"></span>
                 )}
               </LoadingLink>
-              {/* <LoadingLink
-                href="/"
+              <button
+                onClick={() => scrollToSection("about")}
                 className={`transition-colors relative text-sm lg:text-base text-gray-700 hover:text-pink-600`}
-                loadingText="Đang chuyển đến trang giới thiệu..."
               >
                 Về chúng tôi
-              </LoadingLink>
-              <LoadingLink
-                href="/"
+              </button>
+              <button
+                onClick={() => scrollToFooter()}
                 className={`transition-colors relative text-sm lg:text-base text-gray-700 hover:text-pink-600`}
-                loadingText="Đang chuyển đến trang liên hệ..."
               >
                 Liên hệ
-              </LoadingLink> */}
+              </button>
 
               {/* Cart Icon */}
               <LoadingLink

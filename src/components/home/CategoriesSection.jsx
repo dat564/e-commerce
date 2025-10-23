@@ -44,12 +44,12 @@ export default function CategoriesSection() {
       <div className="container mx-auto px-4 max-w-6xl">
         {/* Section Header */}
         <div className="text-center mb-8 sm:mb-12">
-          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-gray-300 mb-4">
-            Categories
-          </h2>
-          <h3 className="text-xl sm:text-2xl text-pink-600 mb-4">
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-pink-600 mb-4">
             Thể loại sản phẩm
-          </h3>
+          </h2>
+          {/* <h3 className="text-xl sm:text-2xl text-pink-600 mb-4">
+            Thể loại sản phẩm
+          </h3> */}
           <p className="text-gray-600 text-base sm:text-lg">
             Các dòng sản phẩm chính tại M.O.B
           </p>
