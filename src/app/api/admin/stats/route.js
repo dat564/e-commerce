@@ -52,8 +52,9 @@ export async function GET(request) {
         .select("orderNumber user total status createdAt")
         .lean(),
 
-      // Sản phẩm bán chạy (top 5)
+      // Sản phẩm bán chạy (top 5) - chỉ tính đơn hàng đã thanh toán thành công và chưa hủy
       Order.aggregate([
+        { $match: { paymentStatus: "paid", status: { $ne: "cancelled" } } },
         { $unwind: "$items" },
         {
           $group: {

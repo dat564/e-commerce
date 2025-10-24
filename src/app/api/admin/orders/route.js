@@ -70,7 +70,7 @@ export async function GET(request) {
         status: "delivered",
       });
       const totalRevenue = await Order.aggregate([
-        { $match: { status: "delivered" } },
+        { $match: { paymentStatus: "paid", status: { $ne: "cancelled" } } },
         { $group: { _id: null, total: { $sum: "$total" } } },
       ]);
 
